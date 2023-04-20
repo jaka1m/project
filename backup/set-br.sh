@@ -42,11 +42,6 @@ password jokerman77
 logfile ~/.msmtp.log
 EOF
 chown -R www-data:www-data /etc/msmtprc
-cd /usr/bin
-wget -O backup "https://raw.githubusercontent.com/jaka1m/project/main/backup/backup.sh"
-wget -O restore "https://raw.githubusercontent.com/jaka1m/project/main/backup/restore.sh"
-chmod +x backup
-chmod +x restore
 cd
 rm -f /root/set-br.sh
 echo ""
