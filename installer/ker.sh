@@ -32,7 +32,7 @@ ubuntu-mainline-kernel.sh -r
 sudo ubuntu-mainline-kernel.sh -i v5.19.1
 sudo ubuntu-mainline-kernel.sh -i
 sudo ubuntu-mainline-kernel.sh -l
-rm -f /root/kernel.sh > /dev/null 2>&1
+rm -f /root/ker.sh > /dev/null 2>&1
 sudo apt install haproxy -y
 reboot
 echo ""
