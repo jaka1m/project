@@ -21,11 +21,16 @@ echo ""
 # // Setup
 echo -e "${GREEN}UPDATE HAP!${NC}"
 sleep 3
-sudo apt update
-sudo apt upgrade -y
+
+
 sudo apt install haproxy -y
+sudo apt purge haproxy -y
+sudo add-apt-repository ppa:vbernat/haproxy-2.4 -y
+sudo apt install haproxy=2.4.\* -y
 rm /etc/haproxy/haproxy.cfg
 wget -O /etc/haproxy/haproxy.cfg "https://raw.githubusercontent.com/jaka1m/project/main/xray/haproxy.cfg" >/dev/null 2>&1
+cat /etc/xray/xray.crt /etc/xray/xray.key | tee /etc/haproxy/hap.pem
+
 rm -f /root/up.sh > /dev/null 2>&1
 reboot
 echo ""
