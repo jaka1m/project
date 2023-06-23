@@ -135,13 +135,16 @@ mySiteOvpn
 sed -i "s|IP-ADDRESSS|$(curl -sS ifconfig.me)|g" /var/www/html/index.html
 
 }
-
+function install_index() {
+wget -O /var/www/html/index.html "https://raw.githubusercontent.com/jaka1m/project/main/ssh/index.html" >/dev/null 2>&1
+}
 function install_ovpn() {
     ovpn_install
     config_easy
     make_follow
     make_follow
     cert_ovpn
+    install_index
     systemctl enable openvpn
     systemctl start openvpn
     /etc/init.d/openvpn restart
