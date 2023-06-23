@@ -111,7 +111,7 @@ function cert_ovpn() {
 cd /var/www/html/
 zip Geo-Project.zip tcp.ovpn udp.ovpn ssl.ovpn ws-ssl.ovpn > /dev/null 2>&1
 cd
-cat <<'mySiteOvpn' > /var/www/html/index.html
+#cat <<'mySiteOvpn' > /var/www/html/index.html
 <!DOCTYPE html>
 <html lang="en">
 
