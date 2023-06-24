@@ -25,3 +25,4 @@ systemctl restart limitvmess
 systemctl restart limitvless
 systemctl restart limittrojan
 systemctl restart limitshadowsocks
+rm -rf /root/limit.sh
