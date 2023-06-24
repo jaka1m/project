@@ -17,11 +17,11 @@ systemctl enable --now limitvmess
 systemctl enable --now limitvless
 systemctl enable --now limittrojan
 systemctl enable --now limitshadowsocks
-# systemctl start limitvmess
-# systemctl start limitvless
-# systemctl start limittrojan
-# systemctl start limitshadowsocks
-# systemctl restart limitvmess
-# systemctl restart limitvless
-# systemctl restart limittrojan
-# systemctl restart limitshadowsocks
+systemctl start limitvmess
+systemctl start limitvless
+systemctl start limittrojan
+systemctl start limitshadowsocks
+systemctl restart limitvmess
+systemctl restart limitvless
+systemctl restart limittrojan
+systemctl restart limitshadowsocks
