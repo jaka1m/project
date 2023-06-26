@@ -28,6 +28,8 @@ function make_follow() {
     echo 1 > /proc/sys/net/ipv4/ip_forward
     sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 cat > /etc/openvpn/tcp.ovpn <<-END
+############## GEOVPN ############## 
+######### www.geovpn.com #########
 client
 dev tun
 proto tcp
@@ -44,6 +46,8 @@ END
     
     sed -i $MYIP2 /etc/openvpn/tcp.ovpn;
 cat > /etc/openvpn/udp.ovpn <<-END
+############## GEOVPN ############## 
+######### www.geovpn.com #########
 client
 dev tun
 proto udp
@@ -60,6 +64,8 @@ END
     
     sed -i $MYIP2 /etc/openvpn/udp.ovpn;
 cat > /etc/openvpn/ws-ssl.ovpn <<-END
+############## GEOVPN ############## 
+######### www.geovpn.com #########
 client
 dev tun
 proto tcp
@@ -75,6 +81,8 @@ verb 3
 END
     sed -i $MYIP2 /etc/openvpn/ws-ssl.ovpn;
 cat > /etc/openvpn/ssl.ovpn <<-END
+############## GEOVPN ############## 
+######### www.geovpn.com #########
 client
 dev tun
 proto tcp
