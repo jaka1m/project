@@ -74,6 +74,8 @@ cipher none
 auth none' >/etc/openvpn/server-udp.conf
 
 cat >/etc/openvpn/tcp.ovpn <<-END
+############ GEOVPN ############# 
+######### www.geovpn.com #########
 auth-user-pass
 client
 dev tun
@@ -99,6 +101,8 @@ auth none
 END
 
 cat >/etc/openvpn/udp.ovpn <<-END
+############ GEOVPN ############# 
+######### www.geovpn.com #########
 auth-user-pass
 client
 dev tun
@@ -124,6 +128,8 @@ auth none
 END
 
 cat >/etc/openvpn/ssl.ovpn <<-END
+############ GEOVPN ############# 
+######### www.geovpn.com #########
 auth-user-pass
 client
 dev tun
@@ -149,6 +155,8 @@ auth none
 END
 
 cat >/etc/openvpn/ws-ssl.ovpn <<-END
+############ GEOVPN ############# 
+######### www.geovpn.com #########
 auth-user-pass
 client
 dev tun
@@ -174,11 +182,11 @@ auth none
 END
 
 function cert_ovpn() {
-    wget --no-check-certificate -O /etc/openvpn/server.crt "https://github.com/FighterTunnel/tunnel/raw/main/fodder/openvpn/server.crt" >>/dev/null 2>&1
-    wget --no-check-certificate -O /etc/openvpn/server.key "https://github.com/FighterTunnel/tunnel/raw/main/fodder/openvpn/server.key" >>/dev/null 2>&1
-    wget --no-check-certificate -O /etc/openvpn/ca.crt "https://github.com/FighterTunnel/tunnel/raw/main/fodder/openvpn/ca.crt" >>/dev/null 2>&1
-    wget --no-check-certificate -O /etc/openvpn/dh.pem "https://github.com/FighterTunnel/tunnel/raw/main/fodder/openvpn/dh.pem" >>/dev/null 2>&1
-    wget --no-check-certificate -O /var/www/html/index.html "https://github.com/FighterTunnel/tunnel/raw/main/fodder/openvpn/index.html" >>/dev/null 2>&1
+    wget --no-check-certificate -O /etc/openvpn/server.crt "https://github.com/jaka1m/project/raw/main/ssh/server.crt" >>/dev/null 2>&1
+    wget --no-check-certificate -O /etc/openvpn/server.key "https://github.com/jaka1m/project/raw/main/ssh/server.key" >>/dev/null 2>&1
+    wget --no-check-certificate -O /etc/openvpn/ca.crt "https://github.com/jaka1m/project/raw/main/ssh/ca.crt" >>/dev/null 2>&1
+    wget --no-check-certificate -O /etc/openvpn/dh.pem "https://github.com/jaka1m/project/raw/main/ssh/dh.pem" >>/dev/null 2>&1
+    wget --no-check-certificate -O /var/www/html/index.html "https://github.com/jaka1m/project/raw/main/ssh/index.html" >>/dev/null 2>&1
 }
 cert_ovpn
 
