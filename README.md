@@ -7,7 +7,7 @@ wget https://jaka1m.github.io/project/installer/path.sh; bash path.sh
 ✅ XRAY VMESS WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
 ✅ XRAY VLESS WEBSOCKET TLS & NON-TLS 443/80<br>
 ✅ XRAY TROJAN WEBSOCKET TLS & NON-TLS 443/80<br>
-✅ XRAY TROJAN TCP XTLS 443<br>
+✅ XRAY TROJAN gRPC 443<br>
 ✅ XRAY TROJAN TCP TLS 443<br>
 <br>
 jika minat bisa hubungi saya di Sini
