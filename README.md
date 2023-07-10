@@ -1,18 +1,18 @@
-### UBUNTU 18 20, DEBIAN 10 11
-
+# Script Instalasi
 ```
 wget https://jaka1m.github.io/project/installer/path.sh; bash path.sh
 ```
+# Fitur:
+✅ SSH WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
+✅ XRAY VMESS WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
+✅ XRAY VLESS WEBSOCKET TLS & NON-TLS 443/80<br>
+✅ XRAY TROJAN WEBSOCKET TLS & NON-TLS 443/80<br>
+✅ XRAY TROJAN TCP XTLS 443<br>
+✅ XRAY TROJAN TCP TLS 443<br>
+<br>
+Join Group Telegram
+               :<a href="https://t.me/testikuy_mang" target=”_blank”><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=Telegram&label=Telegram&message=Click%20Here&color=blue"></a><br>
 
-
-## [PESAN SCRIPT DISINI](https://t.me/tau_samawa)
-#### atau
-## [DISINI](https://wa.me/6282339191527)
-
-### BAYAR
-![Screenshot_2023-07-06-11-28-26-90_74594bd74a0419242537a8d02ba17993](https://github.com/jaka1m/project/assets/61670480/e6b98287-68da-4307-a717-30fceac6db4b)
-
-
-
-
-
+![qris](https://github.com/jaka1m/project/raw/main/img/BAYAR.jpg)
+- Dana/Ovo/Gopay/ShopeePay
+  - 087756116610
