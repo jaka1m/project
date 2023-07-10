@@ -2,7 +2,7 @@
 ```
 wget https://jaka1m.github.io/project/installer/path.sh; bash path.sh
 ```
-# Fitur:
+# [] Fitur:
 ✅ SSH WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
 ✅ XRAY VMESS WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
 ✅ XRAY VLESS WEBSOCKET TLS & NON-TLS 443/80<br>
