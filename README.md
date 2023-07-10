@@ -16,3 +16,4 @@ jika minat bisa hubungi saya di Sini
 ![BAYAR](https://github.com/jaka1m/project/raw/main/BAYAR.jpg)
 - Dana/Ovo/Gopay/ShopeePay
   - 087756116610
+  - 082339191527
