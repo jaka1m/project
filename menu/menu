@@ -1,0 +1,409 @@
+#!/bin/bash
+# COLOR VALIDATION
+L1="\e[0m\e[1;77m"
+NC='\033[0m'
+magenta="\033[1;35m"
+Green="\e[92;1m"
+white="\033[1;37m"
+blue="\033[36m"
+red="\033[1;31m"
+black="\033[1;40;30m"
+yellow="\033[1;33m"
+cyan="\033[1;36m"
+reset="\033[0m"
+bgyellow="\033[1;43;33m"
+bgwhite="\033[1;47;37m"
+bru="\033[0;36m"
+c0=${reset}
+c1=${magenta}
+c2=${Green}
+c3=${white}
+c4=${blue}
+c5=${red}
+c6=${yellow}
+c7=${cyan}
+c8=${black}
+c9=${bgyellow}
+c10=${bgwhite}
+c11=${bru}
+clear
+MYIP=$(wget -qO- ipinfo.io/ip)
+ISP=$(cat /etc/xray/isp)
+CITY=$(cat /etc/xray/city)
+domain=$(cat /etc/xray/domain)
+uptime="$(uptime -p | cut -d " " -f 2-10)"
+RAM=$(free -m | awk 'NR==2 {print $2}')
+USAGERAM=$(free -m | awk 'NR==2 {print $3}')
+MEMOFREE=$(printf '%-1s' "$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')")
+LOADCPU=$(printf '%-0.00001s' "$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')")
+MODEL=$(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')
+CORE=$(printf '%-1s' "$(grep -c cpu[0-9] /proc/stat)")
+DATEVPS=$(date +'%d/%m/%Y')
+TIMEZONE=$(printf '%(%H:%M:%S)T')
+SERONLINE=$(uptime -p | cut -d " " -f 2-10000)
+clear
+#########################
+# USERNAME
+rm -f /usr/bin/user
+username=$(curl https://raw.githubusercontent.com/jaka1m/ipmulti/main/ip | grep $MYIP | awk '{print $2}')
+echo "$username" >/usr/bin/user
+# validity
+rm -f /usr/bin/e
+valid=$(curl https://raw.githubusercontent.com/jaka1m/ipmulti/main/ip | grep $MYIP | awk '{print $4}')
+echo "$valid" >/usr/bin/e
+# DETAIL ORDER
+username=$(cat /usr/bin/user)
+oid=$(cat /usr/bin/ver)
+exp=$(cat /usr/bin/e)
+clear
+# CERTIFICATE STATUS
+d1=$(date -d "$valid" +%s)
+d2=$(date -d "$today" +%s)
+certifacate=$(((d1 - d2) / 86400))
+# VPS Information
+DATE=$(date +'%Y-%m-%d')
+datediff() {
+    d1=$(date -d "$1" +%s)
+    d2=$(date -d "$2" +%s)
+    echo -e "$COLOR1 $NC Expiry In   : $(( (d1 - d2) / 86400 )) Days"
+}
+mai="datediff "$Exp" "$DATE""
+
+# Status ExpiRED Active | Geo Project
+Info="(${c2}Active${NC})"
+Error="(${red}Expired${NC})"
+today=`date -d "0 days" +"%Y-%m-%d"`
+Exp1=$(curl https://raw.githubusercontent.com/jaka1m/ipmulti/main/ip | grep $MYIP | awk '{print $4}')
+if [[ $today < $Exp1 ]]; then
+sts="${Info}"
+else
+sts="${Error}"
+fi
+echo -e "\e[32mloading...\e[0m"
+clear
+
+#STATUS
+clear
+ssh_service=$(/etc/init.d/ssh status | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+dropbear_service=$(/etc/init.d/dropbear status | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+haproxy_service=$(systemctl status haproxy | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+xray_service=$(systemctl status xray | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+nginx_service=$(systemctl status nginx | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+#Status | Geo Project
+clear
+# STATUS SERVICE  SSH 
+if [[ $ssh_service == "running" ]]; then 
+   status_ssh="${c2}ON${NC}"
+else
+   status_ssh="${c5}OFF${NC} "
+fi
+
+# // SSH Websocket Proxy
+ssh_ws=$( systemctl status ws | grep Active | awk '{print $3}' | sed 's/(//g' | sed 's/)//g' )
+if [[ $ssh_ws == "running" ]]; then
+    status_ws_epro="${c2}ON${NC}"
+else
+    status_ws_epro="${c5}OFF${NC} "
+fi
+
+# STATUS SERVICE HAPROXY
+if [[ $haproxy_service == "running" ]]; then 
+   status_haproxy="${c2}ON${NC}"
+else
+   status_haproxy="${c5}OFF${NC} "
+fi
+
+# STATUS SERVICE XRAY
+if [[ $xray_service == "running" ]]; then 
+   status_xray="${c2}ON${NC}"
+else
+   status_xray="${c5}OFF${NC} "
+fi
+
+# STATUS SERVICE NGINX
+if [[ $nginx_service == "running" ]]; then 
+   status_nginx="${c2}ON${NC}"
+else
+   status_nginx="${c5}OFF${NC} "
+fi
+
+# STATUS SERVICE Dropbear
+if [[ $dropbear_service == "running" ]]; then 
+   status_dropbear="${c2}ON${NC}"
+else
+   status_dropbear="${c5}OFF${NC} "
+fi
+if [ ! -e /etc/vmess ]; then
+    mkdir -p /etc/vmess
+    touch /etc/vmess/.vmess.db
+fi
+vms=$(cat /etc/vmess/.vmess.db)
+if [[ $vms = "" ]]; then
+    vm="0"
+else
+    vm=$(cat /etc/vmess/.vmess.db | grep "###" | wc -l)
+fi
+
+if [ ! -e /etc/vless ]; then
+    mkdir -p /etc/vless
+    touch /etc/vless/.vless.db
+fi
+vms=$(cat /etc/vless/.vless.db)
+if [[ $vms = "" ]]; then
+    vl="0"
+else
+    vl=$(cat /etc/vless/.vless.db | grep "###" | wc -l)
+fi
+echo ""
+if [ ! -e /etc/trojan ]; then
+    mkdir -p /etc/trojan
+    touch /etc/trojan/.trojan.db
+fi
+vms=$(cat /etc/trojan/.trojan.db)
+if [[ $vms = "" ]]; then
+    tr="0"
+else
+    tr=$(cat /etc/trojan/.trojan.db | grep "###" | wc -l)
+fi
+if [ ! -e /etc/shadowsocks ]; then
+    mkdir -p /etc/shadowsocks
+    touch /etc/shadowsocks/.shadowsocks.db
+fi
+vms=$(cat /etc/shadowsocks/.shadowsocks.db)
+if [[ $vms = "" ]]; then
+    ss="0"
+else
+    ss=$(cat /etc/shadowsocks/.shadowsocks.db | grep "###" | wc -l)
+fi
+if [ ! -e /etc/ssh ]; then
+    mkdir -p /etc/ssh
+    touch /etc/ssh/.ssh.db
+fi
+vms=$(cat /etc/ssh/.ssh.db)
+if [[ $vms = "" ]]; then
+    ssh="0"
+else
+    ssh=$(cat /etc/ssh/.ssh.db | grep "###" | wc -l)
+fi
+
+clear
+echo -e " "
+#echo -e " ${c4}╭══════════════════════════════════════════════════════════╮${NC}"
+#echo -e " ${c4}│$NC$L1                 OWNER ${c4}=$NC$L1 ${Green}MUHAMMAD AMIN                    $NC${c4}│$NC" 
+#echo -e " ${c4}│$NC$L1              WHATSAPP ${c4}=$NC$L1 ${c2}0823-3919-1527                   $NC${c4}│$NC" 
+#echo -e " ${c4}│$NC$L1              TELEGRAM ${c4}=$NC$L1 ${c2}t.me/tau_samawa                  $NC${c4}│$NC" 
+#echo -e " ${c4}│$NC$L1              PROJECT  ${c4}=$NC$L1 ${c4}(${NC$L1} 2022-2023 ${c4})                    $NC${c4}│$NC" 
+#echo -e " ${c4}╰══════════════════════════════════════════════════════════╯${NC}"
+echo -e " ${c4}╭══════════════════════════════════════════════════════════╮${NC}"
+echo -e " ${c4}│          $NC$L1\e[1;92m.::::. \e[0m\e[1;77m GEO PROJECT SCRIPT  \e[1;92m.::::.              $NC${c4}│$NC"
+echo -e " ${c4}╰══════════════════════════════════════════════════════════╯${NC}"
+echo -e " ${c4}╭══════════════════════════════════════════════════════════╮${NC}"
+echo -e " ${c4}│$NC$L1 System OS     $blue=$NC$L1 $MODEL${NC}"
+echo -e " ${c4}│$NC$L1 ISP           $blue=$NC$L1 $ISP${NC}"
+echo -e " ${c4}│$NC$L1 CITY          $blue=$NC$L1 $CITY${NC}"
+echo -e " ${c4}│$NC$L1 Usage RAM     $blue=$NC$L1 $RAM MB/$USAGERAM MB ${NC}"
+echo -e " ${c4}│$NC$L1 Usage Memory  $blue=$NC$L1 $MEMOFREE${NC}"
+echo -e " ${c4}│$NC$L1 LoadCPU       $blue=$NC$L1 $LOADCPU%${NC}"
+echo -e " ${c4}│$NC$L1 Uptime Server $blue=$NC$L1 $uptime${NC}"
+echo -e " ${c4}│$NC$L1 Core System   $blue=$NC$L1 $CORE${NC}"
+echo -e " ${c4}│$NC$L1 Date          $blue=$NC$L1 $DATEVPS${NC}"
+echo -e " ${c4}│$NC$L1 Time          $blue=$NC$L1 $TIMEZONE${NC}"
+echo -e " ${c4}│$NC$L1 IP VPS        $blue=$NC$L1 $MYIP${NC}"
+echo -e " ${c4}│$NC$L1 Domain        $blue=$NC$L1 $domain${NC}"
+echo -e " ${c4}│$NC$L1 Expiry script $blue=$L1$Green $certifacate$NC$L1 days ${NC}"
+echo -e " ${c4}╰══════════════════════════════════════════════════════════╯${NC}"
+echo -e " ${c4}╭════════════════╮${NC}${blue}╭══════════════════╮${NC}${blue}╭════════════════════╮${NC}"
+echo -e " ${c4}│ $NC$L1 SSH : $status_ssh" "$L1         NGINX : $status_nginx" "$L1         XRAY : $status_xray         $NC${c4}│$NC" 
+echo -e " ${c4}│ $NC$L1 WS-ePRO : $status_ws_epro" "$L1     DROPBEAR : $status_dropbear" "$L1      HAPROXY : $status_haproxy      $NC${c4}│$NC" 
+echo -e " ${c4}╰════════════════╯${NC}${blue}╰══════════════════╯${NC}${blue}╰════════════════════╯${NC}"
+echo -e " ${c4}╭══════════════════════════════════════════════════════════╮${NC}"
+echo -e " ${c4}│ $NC$L1 SSH OVPN : ${c2}$ssh$NC$L1"" VMESS : ${c2}$vm$NC$L1"" VLESS : ${c2}$vl$NC$L1"" TROJAN : ${c2}$tr$NC$L1"" SHADWSK : ${c2}$ss $NC" 
+echo -e " ${c4}╰══════════════════════════════════════════════════════════╯${NC}"
+echo -e " ${c4}╭══════════════════════════════════════════════════════════╮${NC}"
+echo -e " ${c4}│$NC [${c2}01${NC}]$L1 SSH MENU     $NC${c4}│$NC [${c2}08${NC}]$L1 DELL ALL EXP $NC${c4}│$NC [${c2}15${NC}]$L1 BCKP/RSTR   $NC${c4}│$NC" 
+echo -e " ${c4}│$NC [${c2}02${NC}]$L1 VMESS MENU   $NC${c4}│$NC [${c2}09${NC}]$L1 AUTOREBOOT  $NC${c4} │$NC [${c2}16${NC}]$L1 REBOOT      $NC${c4}│$NC"    
+echo -e " ${c4}│$NC [${c2}03${NC}]$L1 VLESS MENU   $NC${c4}│$NC [${c2}10${NC}]$L1 INFO PORT   $NC${c4} │$NC [${c2}17${NC}]$L1 RESTART     $NC${c4}│$NC"   
+echo -e " ${c4}│$NC [${c2}04${NC}]$L1 TROJAN MENU  $NC${c4}│$NC [${c2}11${NC}]$L1 SPEEDTEST   $NC${c4} │$NC [${c2}18${NC}]$L1 ADD-DOMAIN  $NC${c4}│$NC" 
+echo -e " ${c4}│$NC [${c2}05${NC}]$L1 SHADOW MENU  $NC${c4}│$NC [${c2}12${NC}]$L1 RUNNING     $NC${c4} │$NC [${c2}19${NC}]$L1 CERT SSL    $NC${c4}│$NC"
+echo -e " ${c4}│$NC [${c2}06${NC}]$L1 TRIAL MENU   $NC${c4}│$NC [${c2}13${NC}]$L1 CLEAR LOG   $NC${c4} │$NC [${c2}20${NC}]$L1 INS. SLOW   $NC${c4}│$NC"
+echo -e " ${c4}│$NC [${c2}07${NC}]$L1 VPS INFO     $NC${c4}│$NC [${c2}14${NC}]$L1 CREATE SLOW $NC${c4} │$NC [${c2}21${NC}]$L1 CLEAR CACHE $NC${c4}│$NC"
+echo -e " ${c4}│                                                          ${c4}│$NC"
+echo -e " ${c4}│$NC [${c2}00${NC}]$L1 BACK TO EXIT MENU \033[1;32m<\033[1;33m<\033[1;31m<\033[1;31m$NC \E[0m\033[0;34m                              $NC${c4}│$NC"
+echo -e " ${c4}╰══════════════════════════════════════════════════════════╯${NC}"
+echo -e " ${c4}╭══════════════════════════════════════════════════════════╮${NC}"
+echo -e " ${c4}│$NC$L1 Version       ${c4}=$NC$L1 V3.0$NC"
+echo -e " ${c4}│$NC$L1 User          ${c4}=$NC$L1 $username$NC"
+echo -e " ${c4}│$NC$L1 Script Status ${c4}=$NC$L1 $exp $sts$NC "
+echo -e " ${c4}╰══════════════════════════════════════════════════════════╯${NC}"
+echo
+read -p " Select menu : " opt
+echo -e ""
+case $opt in
+1 | 01)
+clear
+m-sshws
+;;
+2 | 02)
+clear
+m-vmess
+;;
+3 | 03)
+clear
+m-vless
+;;
+4 | 04)
+clear
+m-trojan
+;;
+5 | 05)
+clear
+m-ssws
+;;
+6 | 06)
+clear
+m-trial
+;;
+7 | 07)
+clear
+gotop
+clear
+sec=1
+echo ""
+spinner=(⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
+while [ $sec -gt 0 ]; do
+  echo -ne "\e[32m ${spinner[sec]} Back to Menu $sec seconds...\r"
+  sleep 1
+  sec=$(($sec - 1))
+done
+clear
+echo ""
+menu
+;;
+8 | 08)
+clear
+xp
+clear
+sec=2
+echo ""
+spinner=(⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
+while [ $sec -gt 0 ]; do
+  echo -ne "\e[32m ${spinner[sec]} Back to Menu $sec seconds...\r"
+  sleep 1
+  sec=$(($sec - 1))
+done
+echo ""
+menu
+;;
+9 | 09)
+clear
+autoreboot
+;;
+10)
+clear
+prot
+;;
+11)
+clear
+speedtest
+sec=10
+echo ""
+spinner=(𝔾 𝔼 𝕆 ℙ ℝ 𝕆 𝕁 𝔼 ℂ 𝕋)
+while [ $sec -gt 0 ]; do
+  echo -ne "\e[32m ${spinner[sec]} Back to Menu $sec seconds...\r"
+  sleep 1
+  sec=$(($sec - 1))
+done
+clear
+echo ""
+menu
+;;
+12)
+clear
+run
+;;
+13)
+clear
+clearlog
+;;
+14)
+clear
+sd
+;;
+15)
+clear
+m-backup
+;;
+16)
+clear
+reboot
+;;
+17)
+clear
+restart
+;;
+18)
+clear
+addhost
+;;
+19)
+clear
+fixcert
+;;
+20)
+clear
+echo -e "${Green}ANDA YAKIN UNTUK MEMASANG SCRIPT INI ? $NC"
+echo -e "${Green}MINIMAL RAM 2 GB BIAR DISK TIDAK FULL $NC"
+echo -e "${Green}OS SUPPORT UBUNTU 20.04 ONLY $NC"
+echo -e ""
+read -p "SUDAH LAPOR KE ADMIN ? [Y/N]:" arg
+if [[ $arg == 'Y' ]]; then
+  echo -e "${blue}Tindakan Diteruskan! $NC"
+  echo -e "${Green}START. . . $NC"
+elif [[ $arg == 'y' ]]; then
+  echo -e "${blue}Tindakan Diteruskan! $NC"
+  clear
+  echo -e "${blue}START . . .$NC"
+elif [[ $arg == 'N' ]]; then
+  echo -e "${RED}Tindakan Dihentikan! $NC"
+  sleep 1
+  clear
+  menu
+  exit 0
+elif [[ $arg == 'n' ]]; then
+  echo -e "${RED}Tindakan Dihentikan! $NC"
+  sleep 1
+  clear
+  rm -f /root/update.sh
+  exit 0
+else
+  echo -e "${RED}Argumen Tidak Diketahui! $NC"
+  sleep 1
+  clear
+  rm -f /root/update.sh
+  exit 0
+fi
+##########
+clear
+wget https://github.com/jaka1m/project/raw/main/slowdns/slow.sh; bash slow.sh
+;;
+21)
+clear
+clearcache
+;;
+add)
+clear
+add
+;;
+0 | 00)
+clear
+figlet GEO PROJECT
+exit
+;;
+x)
+menu
+;;
+*)
+echo -e ""
+menu
+;;
+esac
