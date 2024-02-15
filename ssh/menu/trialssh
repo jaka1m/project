@@ -1,0 +1,143 @@
+#!/bin/bash
+clear
+source '/home/geo/var.txt'
+TIME="10"
+URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+MYIP=$(curl -sS ipv4.icanhazip.com)
+domain=$(cat /etc/xray/domain)
+PUB=$(cat /etc/slowdns/server.pub)
+NS=$(cat /etc/xray/ns.txt)
+
+echo -e ""
+echo -e "  ===================="
+echo -e "   Trial SSH OVPN Account"
+echo -e "  ===================="
+echo ""
+read -p "  Expired (Minutes): " timer
+
+user=trial$(tr </dev/urandom -dc X-Z0-9 | head -c4)
+PASSWD=$(tr </dev/urandom -dc X-Z0-9 | head -c4)
+useradd -e $(date -d "1 days" +"%d-%b-%Y") -s /bin/false -M $user
+exp="$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}')"
+dbexp=$(date -d "1 days" +"%d-%b-%Y")
+echo -e "$PASSWD\n$PASSWD\n" | passwd $user &>/dev/null
+cat >/var/www/html/ssh-$user.txt <<END
+
+---------------------
+Format SSH OVPN Account
+---------------------
+Username         : $user
+Password         : $PASSWD
+---------------------
+IP               : $MYIP
+Host             : $domain
+Host Slowdns     : ${NS}
+Pub Key          : ${PUB}
+Location         : $CITY
+Port OpenSSH     : 443, 80, 22
+Port UdpSSH      : 1-65535
+Port Dropbear    : 443, 109
+Port Dropbear WS : 443, 109
+Port SSH WS      : 80
+Port SSH SSL WS  : 443
+Port SSL/TLS     : 443
+Port OVPN WS SSL : 443
+Port OVPN SSL    : 443
+Port OVPN TCP    : 443, 1194
+Port OVPN UDP    : 2200
+Proxy Squid 1    : 3128
+Proxy Squid 2    : 8000
+Proxy Squid 3    : 8080
+BadVPN UDP       : 7100, 7300, 7300
+---------------------
+Payload WSS: GET wss://BUG.COM/ HTTP/1.1[crlf]Host: $domain[crlf]Upgrade: websocket[crlf][crlf] 
+---------------------
+OpenVPN Link     : http://$domain:81
+---------------------
+Expired          : $exp
+
+END
+
+CHATID="$CHATID"
+KEY="$KEY"
+TIME="$TIME"
+URL="$URL"
+TEXT="
+<code>◇━━━━━━━━━━━━◇</code>
+<code> ⟨ SSH OVPN Account ⟩</code>
+<code>◇━━━━━━━━━━━━◇</code>
+<code>Username         : </code> <code>$user</code>
+<code>Password         : </code> <code>$PASSWD</code>
+<code>◇━━━━━━━━━━━━◇</code>
+<code>IP               : $MYIP</code>
+<code>Host             : </code> <code>$domain</code>
+<code>Port OpenSSH     : 443, 80, 22</code>
+<code>Port Dropbear    : 443, 109</code>
+<code>Port SSH WS      : 80, 8080 </code>
+<code>Port SSH UDP     : 1-65535 </code>
+<code>Port SSH SSL WS  : 443</code>
+<code>Port SSL/TLS     : 443</code>
+<code>Port OVPN WS SSL : 443</code>
+<code>Port OVPN SSL    : 443</code>
+<code>Port OVPN TCP    : 443, 1194</code>
+<code>Port OVPN UDP    : 2200</code>
+<code>BadVPN UDP       : 7100, 7300, 7300</code>
+<code>◇━━━━━━━━━━━━◇</code>
+<code>Payload WSS      : </code><code>GET wss://BUG.COM/ HTTP/1.1[crlf]Host: $domain[crlf]Upgrade: websocket[crlf][crlf]</code>
+<code>◇━━━━━━━━━━━━◇</code>
+OVPN Download : https://$domain:81/
+<code>◇━━━━━━━━━━━━◇</code>
+<code>Save Link Account: </code>https://$domain:81/ssh-$user.txt
+<code>◇━━━━━━━━━━━━◇</code>
+🗓️ Expired Until : $timer Minutes
+🤖 @tau_samawa
+<code>◇━━━━━━━━━━━━◇</code>
+"
+
+curl -s --max-time $TIME -d "chat_id=$ADMIN&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+echo ""
+if [[ ${c} != "0" ]]; then
+  echo "${iplim}" >/etc/ssh/${user}
+fi
+DATADB=$(cat /etc/ssh/.ssh.db | grep "^###" | grep -w "${user}" | awk '{print $2}')
+if [[ "${DATADB}" != '' ]]; then
+  sed -i "/\b${user}\b/d" /etc/ssh/.ssh.db
+fi
+echo "### ${user} ${dbexp}" >>/etc/ssh/.ssh.db
+
+systemctl restart sshd
+tmux new-session -d -s $user "trialssh $user $timer"
+clear
+echo -e "===================="
+echo -e "   SSH OVPN Account"
+echo -e "===================="
+echo -e "Username         : $user"
+echo -e "Password         : $PASSWD"
+echo -e "===================="
+echo -e "IP               : $MYIP"
+echo -e "Host             : $domain"
+echo -e "Host Slowdns     : ${NS}"
+echo -e "Port OpenSSH     : 443, 80, 22"
+echo -e "Port UdpSSH      : 1-65535"
+echo -e "Port DNS         : 443, 53 ,22 "
+echo -e "Port Dropbear    : 443, 109"
+echo -e "Port Dropbear WS : 443, 109"
+echo -e "Port SSH WS      : 80, 8080"
+echo -e "Port SSH SSL WS  : 443"
+echo -e "Port SSL/TLS     : 443"
+echo -e "Port OVPN WS SSL : 443"
+echo -e "Port OVPN SSL    : 443"
+echo -e "Port OVPN TCP    : 443, 1194"
+echo -e "Port OVPN UDP    : 2200"
+echo -e "Proxy Squid      : 3128"
+echo -e "BadVPN UDP       : 7100, 7300, 7300"
+echo -e "Pub Key SlowDns  : ${PUB}"
+echo -e "===================="
+echo -e "Payload WSS      : GET wss://BUG.COM/ HTTP/1.1[crlf]Host: $domain[crlf]Upgrade: websocket[crlf][crlf]"
+echo -e "===================="
+echo -e "OpenVPN Link     : https://$domain:81"
+echo -e "===================="
+echo -e "Save Link Account: https://$domain:81/ssh-$user.txt"
+echo -e "===================="
+echo -e "Expired          : $timer Minutes"
+echo -e ""

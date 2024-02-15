@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>V2Ray Config Generator</title>
+	<!-- v1.3 20220723-162929 -->
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	<style>
+		.judul {
+			font-size: 16pt;
+		}
+		.textarea-container {
+			position: relative;
+		} 
+		.textarea-container textarea { 
+			width: 100%; 
+			height: 100%; 
+			box-sizing: border-box; 
+		} 
+		.textarea-container .btnSalin{ 
+			position: absolute; 
+			top: 0; 
+			right: 12px; 
+		}
+		.btnInput{ 
+			position: absolute; 
+			bottom: 0; 
+			left: 0;
+			height: 25px;
+		}
+		#btnSalinInput{  
+			right: 0; 
+		}
+		.btnX{
+			transform: rotate(45deg);
+			font-size: 14pt;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="row mt-2 mb-2">
+		<center>
+			<div class="btn-group col-12 col-sm-8 center">
+				<input type="checkbox" class="btn-check" id="btnGenerateConfig" onclick="aksiBtnGenerateConfig()">
+				<label class="btn btn-outline-primary col-12" id="lGenerateConfig" for="btnGenerateConfig">Generate Config</label>
+
+				<input type="checkbox" class="btn-check" id="btnDecodeEncode" onclick="aksiBtnDecodeEncode()">
+				<label class="btn btn-outline-primary col-12" id="lDecodeEncode" for="btnDecodeEncode">Decode Encode</label>
+			</div>
+		</center>
+	</div>
+
+	<div class="textarea-container mb-2">
+		<button class="btn btn-sm btn-primary btnSalin" id="btnSalinInput" onclick="aksiSalin(this)">Salin</button>
+		<textarea rows=10 class="form-control" id="taInputVmess" oninput="aksiGenerate()"></textarea>
+		
+		<div class="btnInput alert-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ubah tampilan JSON menjadi renggang / rapat">
+			<div class="form-check form-switch form-check-inline ms-3">
+				<input class="form-check-input" type="checkbox" id="cbJson" onclick="aksiCbJson()">
+				<label class="form-check-label fw-bold" id="lcbJson" for="cbJson">JSON</label>
+			</div>
+		</div>
+	</div>
+
+
+
+	<div class="row cbInput">
+		<center>
+
+			<div class="col-12 mb-2">
+				<div class="form-check form-switch form-check-inline cbInput" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Kunci semua inputan, berguna apabila perlu pengeditan bagian JSON untuk menanggulangi masalah tidak sengaja kepencet">
+					<input class="form-check-input" type="checkbox" id="cbKunci" onclick="aksiCbKunci()">
+					<label class="form-check-label" id="lcbKunci" for="cbKunci">Kunci</label>
+				</div>
+
+				<div class="form-check form-switch form-check-inline cbInput">
+					<input class="form-check-input cbInput" name=radioWsTls type="radio" id="cbWs" onclick="aksiCbWsTls(); aksiGenerate()" checked>
+					<label class="form-check-label fw-bold" for="cbWs" id="lcbWs">WS</label>
+				</div>
+
+				<div class="form-check form-switch form-check-inline cbInput">
+					<input class="form-check-input cbInput" name=radioWsTls type="radio" id="cbTls" onclick="aksiCbWsTls(); aksiGenerate()">
+					<label class="form-check-label" id="lcbTls" for="cbTls">TLS</label>
+				</div>
+
+				<div class="form-check form-switch form-check-inline cbInput">
+					<input class="form-check-input cbInput" name=radioWsTls type="radio" id="cbWsTls" onclick="aksiCbWsTls(); aksiGenerate()">
+					<label class="form-check-label" id="lcbWsTls" for="cbWsTls">WS TLS</label>
+				</div>
+
+				<div class="form-check form-switch form-check-inline cbInput" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Lihat output JSON, terkadang server V2Ray dan bug TERBALIK, aktifkan untuk menukar posisinya">
+					<input class="form-check-input cbInput" type="checkbox" id="cbTukarHost" onclick="aksiGenerate()" checked>
+					<label class="form-check-label" id="lcbTukarHost" for="cbTukarHost">Tukar Host</label>
+				</div>
+
+				<div class="form-check form-switch form-check-inline cbInput">
+					<input class="form-check-input cbInput" type="checkbox" id="cbPS" onclick="aksiCbPS(); aksiGenerate()" checked>
+					<label class="form-check-label fw-bold" id="lcbPS" for="cbPS">Nama</label>
+				</div>
+			</div>
+		</center>
+
+		<div class="col-12 col-sm-4 mb-2">
+			<div class="input-group" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Atur port sesuai server, matikan jika port disamakan dengan input config">
+				<span class="input-group-text">
+					<div class="form-check form-switch">
+						<input class="form-check-input cbInput" type="checkbox" id="cbPort" checked onclick="aksiCbPort(); aksiGenerate()">
+						<label class="fw-bold" id="lcbPortWS" for="cbPort">Port WS</label>
+					</div>
+				</span>
+
+				<input class="form-control cbInput" type="number" id="tbPortWS" value=80 oninput="aksiGenerate()">
+
+				<span class="input-group-text">
+					<label class="fw-bold" id="lcbPortTLS" for="cbPort">TLS</label>
+				</span>
+
+				<input class="form-control cbInput" type="number" id="tbPortTLS" value=443 oninput="aksiGenerate()">
+			</div>
+		</div>
+
+
+		<div class="col-12 col-sm-8 mb-2" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="
+			Gunakan kode di bawah ini untuk penamaan otomatis, bisa ditambahkan kata-kata lain sesuai kebutuhan<br>
+				<em>/n</em> : nomor<br>
+				<em>/m</em> : mode<br>
+				<em>/t</em> : tgl<br>
+				<em>/b</em> : bug<br>
+				<em>/s</em> : server<br>
+				<em>/kb</em> : kode bug<br>
+				<em>/ks</em> : kode server<br>
+				Matikan jika nama disamakan dengan input config">
+			<div class="input-group col-6">
+				<span class="input-group-text">
+					<div class="form-check form-switch">
+						<input class="form-check-input cbInput" type="checkbox" id="cbNama" onclick="aksiCbNama(); aksiGenerate()" checked>
+						<label id="lcbNama" for="cbNama">Nama</label>
+					</div>
+				</span>
+
+				<input class="form-control cbInput" type="type" class="port" id="tbNama" oninput="aksiGenerate()" placeholder="nama-config-/n/m/t/b/s/kb/ks">
+			</div>
+		</div>
+
+
+		<div class="col-12 mb-2">
+			<div class="input-group col-6" data-bs-toggle="tooltip" data-bs-placement="top" title="Untuk bug lebih dari satu gunakan tanda koma / titik koma / spasi sebagai pemisah. Matikan jika bug disamakan dengan input config">
+				<span class="input-group-text">
+					<div class="form-check form-switch">
+						<input class="form-check-input cbInput" type="checkbox" id="cbBug" onclick="aksiCbBug(); aksiGenerate()">
+						<label class="form-check-label fw-bold" id="lcbBug" for="cbBug">Bug</label>
+					</div>
+				</span>
+				
+				<input type="text" class="form-control cbInput" placeholder="Masukkan bug di sini, bisa lebih dari 1 !" id="tbBug" oninput="aksiGenerate()">
+				
+				<button class="btn btn-danger fw-bold cbInput" id="btnX" onclick="tbBug.value=''; aksiGenerate()"><</button>
+
+				<button class="btn btn-primary cbInput" id="btnBugList" onclick="btnBugList()">v</button>
+			</div>
+		</div>
+
+		<center><div id="divBug" class="col-12 mb-2 d-none"></div></center>
+	</div>
+
+
+	<div class="row">
+		<div class="col-12 col-md-6 textarea-container mb-2">
+			<button class="btn btn-sm btn-primary btnSalin" onclick="aksiSalin(this)">Salin</button>
+
+			<textarea rows=10 class="form-control" id="taOutputJson" oninput="aksiEncode()"></textarea>
+		</div>
+
+		<div class="col-12 col-md-6 textarea-container mb-2">
+			<button class="btn btn-sm btn-primary btnSalin" onclick="aksiSalin(this)">Salin</button>
+
+			<textarea rows=10 class="form-control" id="taOutputVmess" readonly></textarea>
+		</div>
+		<div class="col-12 mb-2">
+			<center><a href="http://t.me/tnd99"><b>Tada no Dareka</b></a></center>
+		</div>
+	</div>
+</div>
+
+
+
+<script>
+	
+	//identifier seperti jQuery
+	$=($)=>document.querySelector($); 
+	$$=($)=>document.querySelectorAll($);
+
+	let daftarServer = {
+		'sgm1ray.serverssh.net' : 'sv',
+		'id1ray.serverssh.net' : 'sv-id1',
+		'id2ray.serverssh.net' : 'sv-id2',
+		'sg1ray.serverssh.net' : 'sv-sg1',
+		'sg2ray.serverssh.net' : 'sv-sg2',
+		'sg3ray.serverssh.net' : 'sv-sg3',
+		'v2ray1.bonds.id' : 'h-sg1',
+		'v2ray2.bonds.id' : 'h-sg2',
+		'v2ray3.bonds.id' : 'h-sg3',
+		'sg.vmes.xyz' : 'js-sg1',
+		'sg2.vmes.xyz' : 'js-sg2',
+		'sg3.vmes.xyz' : 'js-sg3',
+		'sgv-1.openv2ray.com' : 'ot-sg1',
+		'sgv-2.openv2ray.com' : 'ot-sg2',
+		'sgv-3.openv2ray.com' : 'ot-sg3',
+		'sgv-4.openv2ray.com' : 'ot-sg4',
+		'sgv-5.openv2ray.com' : 'ot-sg5',
+		'sgv-6.openv2ray.com' : 'ot-sg6',
+		'idv-1.openv2ray.com' : 'ot-id1',
+		'idv-2.openv2ray.com' : 'ot-id2',
+		'idv-3.openv2ray.com' : 'ot-id3',
+		'idv-4.openv2ray.com' : 'ot-id4',
+		'idv-5.openv2ray.com' : 'ot-id5',
+		'idv-6.openv2ray.com' : 'ot-id6',
+		'sgx-1.openv2ray.com' : 'ot-sg1',
+		'sgx-2.openv2ray.com' : 'ot-sg2',
+		'sgx-3.openv2ray.com' : 'ot-sg3',
+		'sgx-4.openv2ray.com' : 'ot-sg4',
+		'sgx-5.openv2ray.com' : 'ot-sg5',
+		'sgx-6.openv2ray.com' : 'ot-sg6',
+		'idx-1.openv2ray.com' : 'ot-id1',
+		'idx-2.openv2ray.com' : 'ot-id2',
+		'idx-3.openv2ray.com' : 'ot-id3',
+		'idx-4.openv2ray.com' : 'ot-id4',
+		'idx-5.openv2ray.com' : 'ot-id5',
+		'idx-6.openv2ray.com' : 'ot-id6',
+		'sg.vless1.xservs.xyz' : 'ss-sg1',
+		'sg.vless2.xservs.xyz' : 'ss-sg2',
+		'sg.vless3.xservs.xyz' : 'ss-sg3',
+		'sg.vless4.xservs.xyz' : 'ss-sg4',
+		'sg.vless5.xservs.xyz' : 'ss-sg5',
+		'sg.vless6.xservs.xyz' : 'ss-sg6',
+		'sg.vless7.xservs.xyz' : 'ss-sg7',
+		'sg.vless8.xservs.xyz' : 'ss-sg8',
+		'id.vless1.xservs.xyz' : 'ss-id1',
+		'id.vless2.xservs.xyz' : 'ss-id2',
+		'sg.vmess1.xservs.xyz' : 'ss-sg1',
+		'sg.vmess2.xservs.xyz' : 'ss-sg2',
+		'sg.vmess3.xservs.xyz' : 'ss-sg3',
+		'sg.vmess4.xservs.xyz' : 'ss-sg4',
+		'sg.vmess5.xservs.xyz' : 'ss-sg5',
+		'sg.vmess6.xservs.xyz' : 'ss-sg6',
+		'sg.vmess7.xservs.xyz' : 'ss-sg7',
+		'sg.vmess8.xservs.xyz' : 'ss-sg8',
+		'id.vmess1.xservs.xyz' : 'ss-id1',
+		'id.vmess2.xservs.xyz' : 'ss-id2',
+		'id-lb.sshkit.org' : 'sk-id-lb',
+		'sg-lb.sshkit.org' : 'sk-sg-lb',
+		'sg1-v2ray.sshkit.org' : 'sk-sg1',
+		'sg2-v2ray.sshkit.org' : 'sk-sg2',
+		'sg3-v2ray.sshkit.org' : 'sk-sg3',
+		'sg4-v2ray.sshkit.org' : 'sk-sg4',
+		'sg5-v2ray.sshkit.org' : 'sk-sg5',
+		'sg6-v2ray.sshkit.org' : 'sk-sg6',
+		'usa-v2ray.sshkit.net' : 'sk-us',
+		'sg1-trojan.bonds.id' : 'h-sg-he1',
+		'sg2-trojan.bonds.id' : 'h-sg-he2',
+		'sg3-trojan.bonds.id' : 'h-sg-he3',
+		'sg6-trojan.bonds.id' : 'h-sg-mux',
+		'sgovh-trojan.bonds.id' : 'h-sg-ovh',
+		'sg8-trojan.bonds.id' : 'h-sg-udpgw',
+		'id2-trojan.bonds.id' : 'h-id-bizj',
+		'id5-trojan.bonds.id' : 'h-id-bizb',
+		'idtj-uninet.bonds.id' : 'h-id-uninet',
+		'idtj-tifa.bonds.id' : 'h-id-tifa',
+		'idtj-ikd.bonds.id' : 'h-id-ikd'
+	};
+	let daftarBug = {
+		'akucicil-docs.akulaku.com' : 's',
+		'bazo.dk' : 's',
+		'dy.dev' : 's',
+		'104.18.210.56' : 's',
+		'104.18.211.56' : 's',
+		'istyle.id' : 's',
+		'nrg.ua' : 's',
+		'mcstg.istyle.id' : 's',
+		'mailstg.istyle.id' : 's',
+		'172.67.143.61' : 's',
+		'104.21.27.160' : 's',
+		'm.bukalapak.com' : 's',
+		'104.16.138.251' : 's',
+		'104.16.139.251' : 's',
+		'www.bukalapak.com' : 's',
+		'104.16.174.133' : 's',
+		'104.16.175.133' : 's',
+		's.bukalapak.com' : 's',
+		'104.18.13.217' : 's',
+		's1.bukalapak.com' : 's',
+		'104.18.12.217' : 's',
+		'd37d18f8-1.connect.bukalapak.com' : 's',
+		'104.18.6.181' : 's',
+		'62c2238b-2.connect.bukalapak.com' : 's',
+		'104.18.7.181' : 's',
+		'www.preproduction.bukalapak.com' : 's',
+		'104.16.84.52' : 's',
+		'api.bukalapak.com' : 's',
+		'104.17.181.193' : 's',
+		'accounts.bukalapak.com' : 's',
+		'104.17.28.190' : 's',
+		'www.sushiroll.co.id' : 'sr',
+		'172.67.213.134' : 'sr',
+		'104.21.69.223' : 'sr',
+		'api2-t3.musical.ly' : 't',
+		'104.18.122.3' : 't',
+		'104.18.123.3' : 't',
+		'zendesk1.tiktok.com' : 't',
+		'162.159.138.6' : 't',
+		'zendesk2.tiktok.com' : 't',
+		'162.159.128.7' : 't',
+		'v27.tiktokcdn.com' : 't',
+		'104.18.169.91' : 't',
+		'104.18.170.91' : 't',
+		'104.18.16.111' : 'g',
+		'www.pubgmobile.com' : 'g',
+		'file.igamecj.com' : 'g',
+		'go.appsflyer.com' : 'g',
+		'104.17.72.206' : 'g',
+		'learn.appsflyer.com' : 'g',
+		'104.17.73.206' : 'g',
+		'cdn.customlinks.appsflyer.com' : 'g',
+		'104.18.17.124' : 'g',
+		'cdnappiconstest.appsflyer.com' : 'g',
+		'104.18.20.94' : 'g',
+		'cdn.appsflyer.com' : 'g',
+		'104.18.21.94' : 'g',
+		'dev.appsflyer.com' : 'g',
+		'104.18.211.56' : 'g',
+		'support.appsflyer.com' : 'g',
+		'104.18.249.37' : 'g',
+		'zendesk1.appsflyer.com' : 'g',
+		'162.159.128.7' : 'g',
+		'zendesk2.appsflyer.com' : 'g',
+		'162.159.138.6' : 'g',
+		'cf-vod.nimo.tv' : 'g-v',
+		'104.18.20.219' : 'g-v',
+		'104.18.21.219' : 'g-v',
+		'm.netflix.com' : 'v',
+		'api.midtrans.com' : 'e',
+		'104.17.2.81' : 'e',
+		'::ffff:6811:251' : 'e',
+		'[::ffff:6811:251]' : 'e',
+		'm.udemy.com' : 'e',
+		'104.16.65.85' : 'e',
+		'104.16.66.85' : 'e',
+		'note0.microsoft.com' : 'e',
+		'104.17.70.206' : 'e',
+		'azureinfo.microsoft.com' : 'e',
+		'104.17.71.206' : 'e',
+		'104.17.72.206' : 'e',
+		'info.microsoft.com' : 'e',
+		'104.17.73.206' : 'e',
+		'info.udemy.com' : 'e',
+		'104.17.74.206' : 'e',
+		'www.skillacademy.com' : 'e',
+		'104.18.25.139' : 'e',
+		'104.18.24.139' : 'e',
+		'promo.skillacademy.com' : 'e',
+		'www.ruangguru.com' : 'e',
+		'199.60.103.28' : 'e',
+		'199.60.103.228' : 'e',
+		'm.zoom.us' : 'e',
+		'170.114.12.11' : 'e',
+		'maps.google.com' : 'o',
+		'login5.spotify.com' : 'm',
+		'35.186.224.25' : 'm',
+		'api.joox.com' : 'm',
+		'203.205.234.136' : 'm',
+		'm.zoom.us' : 'z'
+	};
+	let bugDiMenu = [
+		'api.midtrans.com',
+		'm.zoom.us',
+		'm.udemy.com',
+		'www.ruangguru.com',
+		'cf-vod.nimo.tv',
+		'cdn.appsflyer.com',
+		'www.pubgmobile.com',
+		'file.igamecj.com',
+		'login5.spotify.com',
+		'www.sushiroll.co.id',
+		'm.netflix.com',
+		'v27.tiktokcdn.com',
+		'api2-t3.musical.ly',
+		'web.web.whatsapp.com'
+	];
+
+	
+	let tooltipTriggerList = [].slice.call($$('[data-bs-toggle="tooltip"]'));
+	let tooltipList = tooltipTriggerList.map( (tooltipTriggerEl) => {
+		return new bootstrap.Tooltip(tooltipTriggerEl);
+	}); 
+
+
+	//a - proses salin kode
+	aksiSalin = (btnSalin) => {
+		let taSalin = btnSalin.nextElementSibling;
+		taSalin.select();
+		document.execCommand('copy');
+		let classPengganti;
+		if ( taSalin.value == '' ){
+			classPengganti = 'btn-danger';
+			btnSalin.innerHTML = 'Kode Kosong!';
+		} else {
+			classPengganti = 'btn-success';
+			btnSalin.innerHTML = 'Disalin!';
+		}
+		btnSalin.classList.replace('btn-primary', classPengganti);
+		setTimeout( ()=>{
+			btnSalin.innerHTML = 'Salin';
+			btnSalin.classList.replace(classPengganti, 'btn-primary');
+		}, 1500);
+	}
+	//z - proses salin kode
+
+
+	//a - checkbox tampilan JSON
+	addBold = (a) => a.classList.add('fw-bold');
+	remBold = (a) => a.classList.remove('fw-bold');
+	addNone = (a) => a.classList.add('d-none');
+	remNone = (a) => a.classList.remove('d-none');
+	//addNone = (a) => a.style.display = 'none';
+	//remNone = (a) => a.style.display = 'block';
+
+	aksiCbJson =()=>{
+		if ( $('#cbJson').checked == true ){
+			addBold( $('#lcbJson') );
+			$('#taOutputJson').value = jsonRenggang( $('#taOutputJson').value );
+		} else {
+			remBold( $('#lcbJson') );
+			$('#taOutputJson').value = jsonRapat( $('#taOutputJson').value );
+		}
+	}
+	jsonRapat = (a) => {
+		a = a.replace( /[\s]/gm , '' )
+		.replace( /}(.*?){/gm , '}\n\n{' );
+		return a;
+	}
+	jsonRenggang = (a) => {
+		a = a.replace( /[\s]/gm , '' )
+		.replaceAll( '{"' , '{\n  "' )
+		.replaceAll( ',"' , ',\n  "' )
+		.replaceAll( '}' , '\n}' )
+		.replace( /}(.*?){/gm , '}\n{' );
+		return a;
+	}
+	//z - checkbox tampilan JSON
+
+
+	//a - checkbox kunci input
+	aksiCbKunci =()=>{
+		if ( $('#cbKunci').checked == true ){
+			addBold( $('#lcbKunci') );
+			$('#taInputVmess').disabled=true;
+			for (let i = 0; i < $$('.cbInput').length; i++){
+				$$('.cbInput')[i].disabled=true;		
+			}
+		} else {
+			remBold( $('#lcbKunci') );
+			$('#taInputVmess').disabled=false;
+			for (let i = 0; i < $$('.cbInput').length; i++){
+				$$('.cbInput')[i].disabled=false;		
+			}
+		}
+	}
+	//z - checkbox kunci input
+
+
+	//a - checkbox WS TLS
+	let mode;
+	aksiCbWs  = () => {
+		if ( $('#cbWs').checked == true ){
+			addBold ( $('#lcbWs') );
+			modeWs = 'ws';
+			try{
+				objek.host = server;
+				objek.add = bug;
+				objek.sni = server;
+			}
+			catch(e){console.log(e)}
+		} else {
+			$('#cbTls').checked == false ? $('#cbTls').checked = true : '';
+			remBold ( $('#lcbWs') );
+			modeWs = '';
+			try{
+				objek.host = bug;
+				objek.add = server;
+				objek.sni = bug;
+			}
+			catch(e){console.log(e)}
+		}
+	}
+	aksiCbWsTls = () => {
+		if ( $('#cbWs').checked == true ) {
+			addBold ( $('#lcbWs') );
+			remBold ( $('#lcbTls') );
+			remBold ( $('#lcbWsTls') );
+			mode = 'ws';
+			try{
+				objek.add = bug;
+				objek.host = server;
+				objek.port = portWS;
+				objek.protocol == 'vmess' ? objek.tls = '' : objek.security = 'none';
+				delete objek.sni;
+			}
+			catch(e){console.log(e)}
+
+		} else if ( $('#cbTls').checked == true ) {
+			remBold ( $('#lcbWs') );
+			addBold ( $('#lcbTls') );
+			remBold ( $('#lcbWsTls') );
+			mode = 'tls';
+			try{
+				objek.add = server;
+				objek.host = bug;
+				objek.port = portTLS;
+				objek.protocol == 'vmess' ? objek.tls = 'tls' : objek.security = 'tls';
+				delete objek.sni;
+			}
+			catch(e){console.log(e)}
+		} else if ( $('#cbWsTls').checked == true ) {
+			remBold ( $('#lcbWs') );
+			remBold ( $('#lcbTls') );
+			addBold ( $('#lcbWsTls') );
+			mode = 'ws-tls';
+			try{
+				objek.add = bug;
+				objek.host = server;
+				objek.port = portTLS;
+				objek.protocol == 'vmess' ? objek.tls = 'tls' : objek.security = 'tls';
+				delete objek.sni;
+			}
+			catch(e){console.log(e)}
+		}
+	}
+	//z - checkbox WS TLS
+
+
+	//a - checkbox tukar host
+	aksiCbTukarHost =()=>{
+		if ( $('#cbTukarHost').checked == true ){
+			addBold( $('#lcbTukarHost') );
+			try{
+				objek.host == '' ? server = objek.sni : server = objek.host;
+				bug = objek.add;
+			}
+			catch(e){console.log(e)}
+		} else {
+			remBold( $('#lcbTukarHost') );
+			try{
+				objek.host == '' ? bug = objek.sni : bug = objek.host;
+				server = objek.add;
+			}
+			catch(e){console.log(e)}
+		}
+	}
+	//z - checkbox tukar host
+
+
+	//a - checkbox input port
+	aksiCbPort =()=>{
+		if ( $('#cbPort').checked == true ){
+			addBold( $('#lcbPortWS') );
+			addBold( $('#lcbPortTLS') );
+			$('#tbPortWS').disabled = false;
+			$('#tbPortTLS').disabled = false;
+			portWS = $('#tbPortWS').value;
+			portTLS = $('#tbPortTLS').value;
+			if ( objek.protocol == 'trojan' ){
+				portWS = portTLS;
+			}
+		} else {
+			remBold( $('#lcbPortWS') );
+			remBold( $('#lcbPortTLS') );
+			$('#tbPortWS').disabled = true;
+			$('#tbPortTLS').disabled = true;
+		}
+	}
+	//z - checkbox input port
+
+
+	//a - checkbox & pengaturan nama config
+	ambilTgl =()=>{
+		let a = new Date();
+		let tahun = a.getFullYear();
+		let bulan = String(a.getMonth() + 1).padStart(1, '0');
+		let hari = String(a.getDate()).padStart(2, '0');
+		let tgl = bulan+hari;
+		return tgl;
+	}
+	aksiCbNama = () => {
+		if ( $('#cbNama').checked == true ){
+			addBold( $('#lcbNama') );
+			$('#tbNama').disabled = false;
+			if ( $('#tbNama').value != '' ){
+				try{ objek.ps = aksiNama( $('#tbNama').value ) }
+				catch(e){console.log(e)}
+			} else {
+				try{ objek.ps = aksiNama('/ks/t/kb') }
+				catch(e){console.log(e)}
+			}
+		} else {
+			remBold( $('#lcbNama') );
+			$('#tbNama').disabled = true;
+		}
+	}
+	aksiNama = (a) => {
+		let tgl = ambilTgl();
+		//let mode = modeWs + '-' + modeTls;
+		let kodeServer = daftarServer[server] ?? '';
+		let	kodeBug = daftarBug[bug] ?? '';
+		a = a.replace( '/n' , nomor + '-' )
+		.replace( '/m' , mode + '-' )
+		.replace( '/ks' , kodeServer + '-' )
+		.replace( '/kb' , kodeBug + '-' )
+		.replace( '/s' , server + '-' )
+		.replace( '/b' , bug + '-' )
+		.replace( '/t' , tgl + '-' );
+		a.startsWith( '-' ) == true ? a = a.slice(1, a.length) : '' ;
+		a.endsWith( '-' ) == true ? a = a.slice(0, a.length-1) : '' ;
+		return a;
+	}
+	aksiCbPS = () => {
+		if ( $('#cbPS').checked == true ){
+			addBold( $('#lcbPS') );
+		} else {
+			remBold( $('#lcbPS') );
+		}
+	}
+	//z - checkbox & pengaturan nama config
+
+
+	//a - checkbox input bug
+	aksiCbBug =()=>{
+		let arrTeksBug = [];
+		if ( $('#cbBug').checked == true ){
+			addBold( $('#lcbBug') );
+			$('#tbBug').disabled = false;
+			$('#btnX').disabled = false;
+			$('#btnBugList').disabled = false;
+			let teksBug = $('#tbBug').value;
+			teksBug = teksBug.replace( /[,;\s\t\n]/gm , ' ' );
+			teksBug = teksBug.replace( /\s+/gm , ' ' ).trim();
+			arrTeksBug = teksBug.split(' ');
+			return arrTeksBug;
+		} else {
+			remBold( $('#lcbBug') );
+			$('#tbBug').disabled = true;
+			$('#btnX').disabled = true;
+			$('#btnBugList').disabled = true;
+			$('#btnBugList').textContent = 'x';
+			btnBugList();
+			try{ arrTeksBug = [objek.add] }
+			catch(e){console.log(e)}
+			return arrTeksBug;
+		}
+	}
+	//z - checkbox input bug
+
+
+	//a - tampilkan bug di memu
+	for ( i = 0; i < bugDiMenu.length; i++ ){
+		$('#divBug').innerHTML += `<button id="btnBug${i}" class="btn btn-outline-primary btn-sm me-1 mb-1" onclick="inputBug(this);aksiGenerate()">${bugDiMenu[i]}</button>`;
+	}
+	//z - tampilkan bug di memu
+
+
+	//a - pengaturan bug di memu
+	inputBug = (tag) => {
+		teks = tag.textContent;
+		salinTeks(teks);
+		$('#tbBug').value += teks + ' ';
+		$('#tbBug').focus();
+	}
+	salinTeks = (teks) => {
+		let tag = document.createElement('textarea');
+		tag.value = teks;
+		document.body.appendChild(tag);
+		tag.select();
+		document.execCommand('copy');
+		document.body.removeChild(tag);
+	}
+	btnBugList = () => {
+		if( $('#btnBugList').textContent == 'v' ){
+			remNone( $('#divBug') );
+			$('#btnBugList').textContent = 'x';
+		} else {
+			addNone( $('#divBug') );
+			$('#btnBugList').textContent = 'v';
+		}
+	}
+	//z - pengaturan bug di memu
+
+
+	//a - proses decode
+	let teksDecode = [];
+	let arrOutVmess = [];
+	let arrOutJson = [];
+
+	decode =()=>{
+		let teksInput = $('#taInputVmess').value
+		.replaceAll( 'vmess://' , '\nvmess://' )
+		.replaceAll( 'vless://' , '\nvless://' )
+		.replaceAll( 'trojan://' , '\ntrojan://' )
+		.replace( /[;,\s\t]/gm , '\n' )
+		.replace( /\n+/gm , '\n' );
+		arrTeksInput = teksInput.split('\n');
+		arrTeksInput = arrTeksInput.filter( a => a.startsWith('vmess://') || a.startsWith('vless://') || a.startsWith('trojan://'));
+		arrTeksDecode = arrTeksInput.map( a => {
+			protocol = a.slice(0, a.indexOf(':'));
+			if ( a.startsWith('vmess://') == true ){
+				a = a.replace( 'vmess://' , '' );
+				try{ a = atob(a) }
+				catch(e){console.log(e)}
+				a = a.replace( '{' , '{"protocol":"vmess",' );
+				return a;
+			} else {
+				return url2Json(a, protocol);
+			}
+		});
+	}
+	url2Json = (a, protocol) => {
+		a = a.replace( protocol + '://' , '"id=' )
+		.replace( '@' , '","add=' )
+		.replace( '#' , '","ps=' )
+		.replace( /:(?!.*:)/ , '","port=' )
+		.replace( /\?|&/g , '","' )
+		.replace( /=/g , '":"' );
+		a = '{"protocol":"' + protocol + '",' + a + '"}';
+		return a;
+	}
+	//z - proses decode
+
+
+	//a - proses encode
+	aksiEncode =()=>{
+		let kol;
+		$('#btnGenerateConfig').checked == true 
+			? kol=$('#taOutputVmess') 
+			: kol=$('#taInputVmess');
+		jsonRapat( $('#taOutputJson').value );
+		let outputEncode = [];
+		let teksJson = jsonRapat( $('#taOutputJson').value );
+		arrTeksJson= teksJson.split('\n\n');
+		outputEncode = arrTeksJson.map( ( item ) => {
+			if ( item.includes('vless')) {
+				return json2Url(item, 'vless');
+			} else if ( item.includes('trojan')) {
+				return json2Url(item, 'trojan');
+			} else {
+				item = item.replace('"protocol":"vmess",' , '')
+				return 'vmess://' + btoa(item);
+			}
+		});
+		kol.value = outputEncode.join('\n-\n');
+	}
+	//z - proses encode
+
+
+	//a - proses generate config
+	let nomor = '';
+	let bug = '';
+	aksiGenerate =()=>{
+		arrOutVmess = [];
+		arrOutJson = [];
+		decode();
+		$('#btnGenerateConfig').checked == true 
+			? arrTeksDecode.forEach(ubahConfig)
+			: $('#taOutputJson').value = arrTeksDecode.join('\n\n');;
+		aksiCbJson();
+		$('#taOutputVmess').value = arrOutVmess.join('\n');
+	}
+	ubahConfig = (item) => {
+		try{ 
+			objek = JSON.parse(item);
+			portWS = objek.port;
+			portTLS = objek.port;
+		}
+		catch(e){console.log(e)}
+		
+		aksiCbPort();
+		aksiCbTukarHost();
+		aksiCbBug().forEach( (item) => {
+			nomor = arrOutJson.length + 1;
+			bug = item;
+			aksiCbWsTls();
+			aksiCbNama();
+
+			for (let a in objek) {
+				if ( objek[a] == 'none' || objek[a] == '') delete objek[a];
+			}
+
+			let config = JSON.stringify(objek);
+			arrOutJson.push(config);
+			$('#taOutputJson').value = arrOutJson.join(',\n');
+			$('#cbPS').checked == true ? arrOutVmess.push( objek.ps ) : '';
+			
+			if ( objek.protocol == 'vmess' ){
+				config = config.replace( '"protocol":"vmess",' , '');
+				arrOutVmess.push( 'vmess://' + btoa(config) + '\n' );
+			} else {
+				arrOutVmess.push( json2Url(config, objek.protocol) + '\n');
+			}
+		});
+	}
+	json2Url = (a, protocol) => {
+		let pro = protocol + "://";
+		a = a.replace( '{"protocol":"' + protocol + '","id":"' , pro )
+		.replace( '{"id":"' , pro )
+		.replace( '","add":"' , '@' )
+		.replace( '","port":"' , ':' )
+		.replace( '","ps":"' , '#' )
+		.replace( '","' , '?' )
+		.replaceAll( '":"' , '=' )
+		.replaceAll( '","' , '&' )
+		.replace( '"}' , '' );
+		let b = a.match( /#.*?(?=&)/ );
+		if ( b != null ) a = a.replace(b, '') + b;
+		return a;
+	}
+	//z - proses generate config
+
+
+	//a - pengaturan menu atas
+	aksiBtnGenerateConfig =()=>{
+		$('#btnGenerateConfig').checked = true;
+		$('#btnDecodeEncode').checked = false;
+		addBold( $('#lGenerateConfig') );
+		remBold( $('#lDecodeEncode') );
+		remNone( $('#taOutputVmess').parentElement );
+		$('#taOutputJson').parentElement.classList.add('col-md-6');
+		$('#taInputVmess').placeholder = 'Input VMESS / VLESS / TROJAN \nTempel di sini !!! \nvmess://.....\nvless://.....\ntrojan://.....';
+		$('#taOutputVmess').placeholder = 'Output VMESS / VLESS / TROJAN  \nvmess://.....\nvless://.....\ntrojan://.....';
+		$('#taOutputJson').placeholder = 'Output JSON \n{\n  add  : ...\n  host : ...\n  port : ...\n}';
+
+		for (let i = 0; i < $$('.cbInput').length; i++){
+			remNone( $$('.cbInput')[i] );			
+		}
+		$('#cbKunci').checked = false;
+		aksiCbKunci();		
+		aksiGenerate();
+	}
+	aksiBtnGenerateConfig();
+	aksiBtnDecodeEncode =()=>{
+		$('#btnGenerateConfig').checked = false;
+		$('#btnDecodeEncode').checked = true;
+		remBold( $('#lGenerateConfig') );
+		addBold( $('#lDecodeEncode') );
+		addNone( $('#taOutputVmess').parentElement );
+		$('#taOutputJson').parentElement.classList.remove('col-md-6');
+		$('#taInputVmess').placeholder = 'Tempel VMESS di sini !!! \nvmess://.....';
+		$('#taOutputJson').placeholder = 'Tempel JSON di sini !!! \n{\n  add  : ...\n  host : ...\n  port : ...\n}';
+
+		for (let i = 0; i < $$('.cbInput').length; i++){
+			addNone( $$('.cbInput')[i] );
+		}
+		$('#cbKunci').checked = false;
+		aksiCbKunci();
+		aksiGenerate();
+	}
+	//z - pengaturan menu atas
+
+
+</script>
+</body>
+</html>

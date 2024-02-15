@@ -1,0 +1,716 @@
+#!/bin/bash
+# //====================================================
+# //	System Request:Debian 9+/Ubuntu 18.04+/20+
+# //	Author:	Geo Project
+# //	Dscription: Xray Menu Management
+# //	email: admin@geolstore.net
+# //  telegram: https://t.me/tau_samawa
+# //====================================================
+
+# // Root Checking
+if [ "${EUID}" -ne 0 ]; then
+		echo -e "${EROR} Please Run This Script As Root User !"
+		exit 1
+fi
+
+# // Export Color & Information
+export RED='\033[0;31m'
+export GREEN='\033[0;32m'
+export YELLOW='\033[0;33m'
+export BLUE='\033[0;34m'
+export PURPLE='\033[0;35m'
+export CYAN='\033[0;36m'
+export LIGHT='\033[0;37m'
+export NC='\033[0m'
+OR='\033[1;93m'
+Lred='\e[91m'
+LLgreen='\e[92m'
+Lyellow='\e[93m'
+yellow="\033[1;33m"
+green="\e[92;1m"
+yellow="\033[1;33m"
+cyan="\033[1;36m"
+
+# // Export Banner Status Information
+export EROR="[${RED} ERROR ${NC}]"
+export INFO="[${YELLOW} INFO ${NC}]"
+export OKEY="[${GREEN} OKEY ${NC}]"
+export PENDING="[${YELLOW} PENDING ${NC}]"
+export SEND="[${YELLOW} SEND ${NC}]"
+export RECEIVE="[${YELLOW} RECEIVE ${NC}]"
+
+# // Export Align
+export BOLD="\e[1m"
+export WARNING="${RED}\e[5m"
+export UNDERLINE="\e[4m"
+
+# // Exporting URL Host
+export Server_URLL="raw.githubusercontent.com/jaka1m/perizinan/main"
+export Server_Port="443"
+export Server_IP="underfined"
+export Script_Mode="Stable"
+export Auther="geovpn"
+# System commands status
+city=$(cat /etc/xray/city)
+dat=$(date +"%d-%B-%Y")
+ipku=$(wget -qO- ipinfo.io/ip)
+isp=$(cat /etc/xray/isp)
+pub=$(cat /etc/slowdns/server.pub)
+key=$(cat /etc/slowdns/server.key)
+ns=$(cat /etc/xray/ns.txt)
+domain=$(cat /etc/xray/domain)
+sp=$(cat /etc/xray/isp)
+
+# // Exporting IP Address
+export IP=$( curl -sS ipinfo.io/ip )
+
+# // Exporting Network Interface
+export NETWORK_IFACE="$(ip route show to default | awk '{print $5}')"
+
+# // Vali, Result ( 1 )
+touch /etc/${Auther}/license.key
+export Your_License_Key="$( cat /etc/${Auther}/license.key | awk '{print $1}' )"
+export Validated_Your_License_Key_With_Server="$( curl -s https://${Server_URLL}/registered.txt | grep -w $Your_License_Key | head -n1 | cut -d ' ' -f 1 )"
+if [[ "$Validated_Your_License_Key_With_Server" == "$Your_License_Key" ]]; then
+    validated='true'
+else
+    echo -e "${EROR} License Key Not Valid"
+    exit 1
+fi
+
+# // Checking Script Expired
+exp=$( curl -s https://${Server_URLL}/registered.txt | grep -w $Your_License_Key | cut -d ' ' -f 4 )
+now=`date -d "0 days" +"%Y-%m-%d"`
+expired_date=$(date -d "$exp" +%s)
+now_date=$(date -d "$now" +%s)
+sisa_hari=$(( ($expired_date - $now_date) / 86400 ))
+if [[ $sisa_hari -lt 0 ]]; then
+    echo $sisa_hari > /etc/${Auther}/license-remaining-active-days.db
+    echo -e "${EROR} Your License Key Expired ( $sisa_hari Days )"
+    exit 1
+else
+    echo $sisa_hari > /etc/${Auther}/license-remaining-active-days.db
+fi
+export Issue_License=$( curl -s https://${Server_URLL}/registered.txt | grep -w $Your_License_Key | cut -d ' ' -f 9-100 | awk '{print $1}' );
+export Random_Number=$( </dev/urandom tr -dc 1-$( curl -s https://raw.githubusercontent.com/jaka1m/project/main/backup/akun-smtp.txt | grep -E Jumlah-Notif | cut -d " " -f 2 | tail -n1 ) | head -c1 )
+export email=$( curl -s https://raw.githubusercontent.com/jaka1m/project/main/backup/akun-smtp.txt | grep -E Notif$Random_Number | cut -d " " -f 2 | tr -d '\r')
+export password=$( curl -s https://raw.githubusercontent.com/jaka1m/project/main/backup/akun-smtp.txt | grep -E Notif$Random_Number | cut -d " " -f 3 | tr -d '\r')
+# // Import SMTP Account
+cat > /etc/msmtprc << END
+defaults
+port 587
+tls on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+auth on
+logfile        ~/.msmtp.log
+
+account        GeoVPN
+host           smtp.gmail.com
+port           587
+from           GEO PROJECT
+user           $email
+password       $password
+account default : GeoVPN
+END
+
+upusage="$(vnstat -i eth0 | grep "today" | awk '{print $5" "substr ($6, 1, 1)}')"
+tousage="$(vnstat -i eth0 | grep "today" | awk '{print $8" "substr ($9, 1, 1)}')"
+downusage="$(vnstat -i eth0 | grep "today" | awk '{print $2" "substr ($3, 1, 1)}')"
+cek-bw() {
+    clear -x
+    echo ""
+    printf "\e[1;92m        \e[0m\e[1;77m VNSTAT BANDWITH \e[1;92m    \e[0m\n"
+    echo "  Rx.rate $upusage Tx.rate $downusage "
+    echo "    ---------------------------"
+    echo "          Total $tousage"
+    echo "   1.Show bandwith in 5 minutes"
+    echo "   2.Show bandwith in hours"
+    echo "   3.Show bandwith in days"
+    echo "   4.Show bandwith in months"
+    echo "   5.Show bandwith in years"
+    echo "   6.Show bandwith in top days"
+    echo ""
+    bw1() {
+        vnstat -5 #,  --fiveminutes [limit]   show 5 minutes
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    }
+    bw2() {
+        vnstat -h #,  --hours [limit]         show hours
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    }
+    bw3() {
+        vnstat -d #,  --days [limit]          show days
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    }
+    bw4() {
+        vnstat -m #,  --months [limit]        show months
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    }
+    bw5() {
+        vnstat -y #,  --years [limit]         show years
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    }
+    bw6() {
+        vnstat -t #,  --top [limit]           show top days
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    }
+    read -p "   Select From Options 1 - 6 : " menu
+    case $menu in
+    1) bw1 ;;
+    2) bw2 ;;
+    3) bw3 ;;
+    4) bw4 ;;
+    5) bw5 ;;
+    6) bw6 ;;
+
+    *)
+        exit 0
+        ;;
+    esac
+
+}
+function autobackup() {
+    clear
+    Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
+    Info="${Green_font_prefix}[ON]${Font_color_suffix}"
+    Error="${Red_font_prefix}[OFF]${Font_color_suffix}"
+    cek=$(grep -c -E "^# Autobackup" /etc/cron.d/autobckp)
+    if [[ "$cek" = "1" ]]; then
+        sts="${Info}"
+    else
+        sts="${Error}"
+    fi
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m    AUTOBACKUP VPS SERVER      $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│  Status Autobackup : $sts        "
+    echo -e "\033[0;34m│$NC"
+    echo -e "\033[0;34m│$NC [${GREEN}01${NC}]$L1 Autobackup After 6 Hour"
+    echo -e "\033[0;34m│$NC [${GREEN}02${NC}]$L1 Autobackup After 12 Hour"
+    echo -e "\033[0;34m│$NC [${GREEN}03${NC}]$L1 Autobackup After 24 Hour"
+    echo -e "\033[0;34m│$NC [${GREEN}04${NC}]$L1 Turn Off Autobackup"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo -e ""
+    until [[ $Autobackup =~ ^[1-4]+$ ]]; do
+        read -p "Select From Options [1-4 or x] :  " Autobackup
+    done
+    case $Autobackup in
+    1)
+        echo -e ""
+        sleep 1
+        clear
+        echo >/etc/cron.d/autobckp
+        echo "# Autobackup" >/etc/cron.d/autobckp
+        echo "0 */6 * * *  root /usr/local/sbin/autobckp" >>/etc/cron.d/autobckp
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        echo -e ""
+        echo -e "      Autobackup Every     : 6 Hour"
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+        ;;
+    2)
+        echo -e ""
+        sleep 1
+        clear
+        echo >/etc/cron.d/autobckp
+        echo "# Autobackup" >/etc/cron.d/autobckp
+        echo "0 */12 * * *  root /usr/local/sbin/autobckp" >>/etc/cron.d/autobckp
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        echo -e ""
+        echo -e "      Autobackup Every     : 12 Hour"
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+        ;;
+    3)
+        echo -e ""
+        sleep 1
+        clear
+        echo >/etc/cron.d/autobckp
+        echo "# Autobackup" >/etc/cron.d/autobckp
+        echo "0 */24 * * *  root /usr/local/sbin/autobckp" >>/etc/cron.d/autobckp
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        echo -e ""
+        echo -e "      Autobackup Every     : 24 Hour"
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+        ;;
+    4)
+        clear
+        rm /etc/cron.d/autobckp
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        echo -e ""
+        echo -e "      Autobackup Turned Off  "
+        echo -e ""
+        echo -e "\033[0;34m=========================\033[0m"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+        ;;
+    *)
+        menu
+        ;;
+    esac
+
+}
+backup() {
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m        BACKUP VPS SERVER      $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+echo -e "[ ${GREEN}INFO${NC} ] Create for database"
+read -rp "Enter Token (Creat on Botfather) : " -e token
+read -rp "Enter Chat id, Channel, Group Or Your Id  : " -e id_chat
+echo -e "toket=$token" >> /home/botapi.conf
+echo -e "chat_idc=$id_chat" >> /home/botapi.conf
+sleep 1
+clear
+echo -e "[ ${GREEN}INFO${NC} ] Processing... "
+mkdir -p /home/backup
+cp -r /etc/xray/config.json /home/backup/ >/dev/null 2>&1
+cp -r /etc/xray/*.log /home/backup/ >/dev/null 2>&1
+cp /etc/passwd /home/backup/
+cp /etc/group /home/backup/
+cp /etc/shadow /home/backup/
+cp /etc/gshadow /home/backup/
+cp /etc/xray/domain /home/backup/
+cp -r /var/www/html /home/backup/
+cp -r /etc/limit/vmess/ /home/backup/vmess
+cp -r /etc/limit/vless/ /home/backup/vless
+cp -r /etc/limit/trojan/ /home/backup/trojan
+cp -r /etc/limit/shadowsocks/ /home/backup/shadowsocks
+cp -r /etc/ssh/.ssh.db /home/backup/ssh.db
+cp -r /etc/vmess/.vmess.db /home/backup/vmess.db
+cp -r /etc/vless/.vless.db /home/backup/vless.db
+cp -r /etc/trojan/.trojan.db /home/backup/trojan.db
+cp -r /etc/shadowsocks/.shadowsocks.db /home/backup/shadowsocks.db
+cp -r /etc/ssh/ /home/backup/database
+cp -r /etc/vmess/ /home/backup/database
+cp -r /etc/vless/ /home/backup/database
+cp -r /etc/trojan/ /home/backup/database
+cp -r /etc/ssh/ /home/backup/database
+cp -r /etc/shadowsocks/ /home/backup/database
+cp -r /etc/slowdns/server.pub /home/backup/server.pub
+cp -r /etc/slowdns/server.key /home/backup/server.key
+cd /home
+zip -r GP-$ipku.zip backup >/dev/null 2>&1
+    rclone copy GP-$ipku.zip dr:BACKUPVPS/
+    url=$(rclone link dr:BACKUPVPS/GP-$ipku.zip)
+    tokenbackup=($(echo $url | grep '^https' | cut -d'=' -f2))
+    LINKBACKUP="https://drive.google.com/u/4/uc?id=${tokenbackup}&export=download"
+
+curl -F chat_id="$id_chat" -F document=@"GP-$ipku.zip" -F caption="Thank You For Using Our Service
+
+=========================
+SUCCESSFULL YOUR BACKUP
+Please Save The Following Data
+=========================
+IP     : $ipku
+DOMAIN : $domain
+DATE   : $dat
+ISP    : $isp
+CITY   : $city
+TOKEN  : $tokenbackup
+LINK   : $LINKBACKUP
+=========================
+PUB KEY : $pub
+PRIVATE KEY : $key
+NS SERVER: $ns
+=========================
+
+© Copyright By https://github.com/jaka1m
+Busines email : paoandest@gmail.com
+Report bugs   : https://t.me/tau_samawa
+GEO PROJECT" https://api.telegram.org/bot$token/sendDocument &> /dev/null
+
+rm -fr /root/backup &> /dev/null
+rm -fr /root/user-backup &> /dev/null
+rm -f /root/GP-$ipku.zip &> /dev/null
+
+echo -e ""
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m   SUCCESS FULL BACKUP VPS     $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC IP     : $ipku"
+    echo -e "\033[0;34m│$NC DOMAIN : $domain"
+    echo -e "\033[0;34m│$NC DATE   : $dat"
+    echo -e "\033[0;34m│$NC ISP    : $isp"
+    echo -e "\033[0;34m│$NC CITY   : $city"
+    echo -e "\033[0;34m│$NC TOKEN  : $tokenbackup"
+    echo -e "\033[0;34m│$NC LINK   : $LINKBACKUP"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC PUB KEY     : $pub"
+    echo -e "\033[0;34m│$NC PRIVATE KEY : $key"
+    echo -e "\033[0;34m│$NC NS SERVER   : $ns"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo -e "       Please Save The Following Data"
+    echo ""
+    echo ""
+    read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+}
+function restore() {
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m       RESTORE DATA VPS        $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo ""
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC [${GREEN}01${NC}]$L1 Restore using tokens"
+    echo -e "\033[0;34m│$NC [${GREEN}02${NC}]$L1 Restore using link manual "
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    read -p "  Select From Options [ 1 - 2 ] : " S_MENU
+    case $S_MENU in
+    1 | 01)
+     clear
+        read -p "  Input Your TOKEN : " TOKEN
+        Tokenbckp
+        ;;
+    2 | 02)
+     clear
+        read -p "  Input Your LINK : " MANUAL
+        Linkman
+        ;;
+    *)
+        echo -e "${RED}You wrong command !${NC}"
+        sleep 5
+        ;;
+    esac
+}
+function Tokenbckp() {
+cd /home
+    wget -q --load-cookies /tmp/cookies.txt "https://drive.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://drive.google.com/u/0/uc?id=${TOKEN}&export=download' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${TOKEN}" -O backup.zip && rm -rf /tmp/cookies.txt >/dev/null 2>&1
+    restorevps
+}
+function Linkman() {
+cd /home
+    wget -q -O backup.zip --no-check-certificate $MANUAL >/dev/null 2>&1
+    restorevps
+}
+restorevps() {
+    unzip backup.zip >/dev/null 2>&1
+    cp /home/backup/passwd /etc/
+    cp /home/backup/group /etc/
+    cp /home/backup/shadow /etc/
+    cp /home/backup/gshadow /etc/
+    cp -r /home/backup/html /var/www/
+    cp -r /home/backup/domain /etc/xray/
+    cp -r /home/backup/vmess/ /etc/limit/
+    cp -r /home/backup/vless/ /etc/limit/
+    cp -r /home/backup/trojan/ /etc/limit/
+    cp -r /home/backup/shadowsocks/ /etc/limit/
+    cp -r /home/backup/ssh.db /etc/ssh/.ssh.db
+    cp -r /home/backup/vmess.db /etc/vmess/.vmess.db
+    cp -r /home/backup/vless.db /etc/vless/.vless.db
+    cp -r /home/backup/trojan.db /etc/trojan/.trojan.db
+    cp -r /home/backup/shadowsocks.db /etc/shadowsocks/.shadowsocks.db
+    cp -r /home/backup/database/vmess/ /etc/
+    cp -r /home/backup/database/vless/ /etc/
+    cp -r /home/backup/database/trojan/ /etc/
+    cp -r /home/backup/database/shadowsocks/ /etc/
+    cp -rf /home/backup/database/ssh /etc/
+    cp -r /home/backup/server.pub /etc/slowdns/server.pub
+    cp -r /home/backup/server.key /etc/slowdns/server.key
+    cp -r /home/backup/config.json /etc/xray >/dev/null 2>&1
+    cp -r /home/backup/*.log /etc/xray >/dev/null 2>&1
+    cp /etc/openvpn/*.ovpn /var/www/html/
+    cd
+    systemctl restart xray >/dev/null 2>&1
+    rm -fr /home/backup
+    rm -fr /home/backup.zip
+    clear
+    echo ""
+    echo -e "SUCCESSFUL RESTORE VPS DATA PLEASE"
+    echo -e "CONNECT THE OLD DOMAIN AT CLOUDFLARE"
+    echo -e "AND RESTART THE SERVICE, MANDATORY."
+    echo ""
+    read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+
+}
+clear
+portin() {
+    clear
+    echo -e "\033[0;34m┌──────────────────────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m            PORT INFORMATION SERVICE          $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└──────────────────────────────────────────────┘\033[0m"
+    echo "┌──────────────────────────────────────────────┐"
+    echo "│  # Service & Port                            │"
+    echo "│  - Open SSH                : 22              │"
+    echo "│  - UDP SSH                 : 1-65535         │"
+    echo "│  - DNS (SLOWDNS)           : 443, 80, 53     │"
+    echo "│  - Dropbear                : 443, 109, 143   │"
+    echo "│  - Dropbear Websocket      : 443, 109        │"
+    echo "│  - SSH Websocket SSL       : 443             │"
+    echo "│  - SSH Websocket           : 80              │"
+    echo "│  - OpenVPN SSL             : 443             │"
+    echo "│  - OpenVPN Websocket SSL   : 443             │"
+    echo "│  - OpenVPN TCP             : 443, 1194       │"
+    echo "│  - OpenVPN UDP             : 2200            │"
+    echo "│  - Nginx Webserver         : 443, 80, 81     │"
+    echo "│  - Haproxy Loadbalancer    : 443, 80         │"
+    echo "│  - DNS Server              : 443, 53         │"
+    echo "│  - DNS Client              : 443, 88         │"
+    echo "│  - XRAY (DNSTT/SLOWDNS)    : 443, 53         │"
+    echo "│  - XRAY Vmess TLS          : 443             │"
+    echo "│  - XRAY Vmess gRPC         : 443             │"
+    echo "│  - XRAY Vmess None TLS     : 80              │"
+    echo "│  - XRAY Vless TLS          : 443             │"
+    echo "│  - XRAY Vless gRPC         : 443             │"
+    echo "│  - XRAY Vless None TLS     : 80              │"
+    echo "│  - Trojan gRPC             : 443             │"
+    echo "│  - Trojan WS               : 443             │"
+    echo "│  - Shadowsocks WS          : 443             │"
+    echo "│  - Shadowsocks gRPC        : 443             │"
+    echo "│                                              │"
+    echo "│  # Server Information & Other Features       │"
+    echo "│  - Timezone Asia/Jakarta (GMT +7)            │"
+    echo "│  - Autoreboot On 05:00 AM GMT +7             │"
+    echo "│  - Auto Delete Expired Account               │"
+    echo "│  - Fully automatic script                    │"
+    echo "│  - VPS settings                              │"
+    echo "│  - Admin Control                             │"
+    echo "│  - Restore Data                              │"
+    echo "│  - Full Orders For Various Services          │"
+    echo "└──────────────────────────────────────────────┘"
+    read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+}
+function chnge-domain() {
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m        CHANGE DOMAIN VPS      $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo ""
+    read -p "  Input Your Domain : " newdomain
+    systemctl stop nginx
+    systemctl stop haproxy
+    /root/.acme.sh/acme.sh --upgrade --auto-upgrade
+    /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    /root/.acme.sh/acme.sh --issue -d $newdomain --standalone -k ec-256
+    /root/.acme.sh/acme.sh --installcert -d $newdomain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key --ecc
+    rm -rf /etc/xray/domain
+    echo $newdomain >/etc/xray/domain
+    input_domain="s/$domain/$newdomain/g"
+    cat /etc/xray/xray.crt /etc/xray/xray.key | tee /etc/haproxy/hap.pem
+    chown www-data.www-data /etc/xray/xray.key
+    chown www-data.www-data /etc/xray/xray.crt
+    sed -i $input_domain /etc/openvpn/tcp.ovpn
+    sed -i $input_domain /etc/openvpn/udp.ovpn
+    sed -i $input_domain /etc/openvpn/ssl.ovpn
+    sed -i $input_domain /etc/openvpn/ws-ssl.ovpn
+    sed -i $input_domain /var/www/html/index.html
+    systemctl restart haproxy
+    systemctl restart nginx
+    read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+    echo ""
+
+}
+chnge-ns() {
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m     CHANGE NS DOMAIN VPS      $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo ""
+    read -rp "  Input ur NS Domain : " -e nsdomain
+    echo $nsdomain >/etc/xray/ns.txt
+    sed -i "s/$ns/$nsdomain/g" /etc/systemd/system/client.service
+    sed -i "s/$ns/$nsdomain/g" /etc/systemd/system/server.service
+    systemctl daemon-reload
+    systemctl restart server
+    systemctl restart client
+    echo "Change Ns Domain Successfully"
+    read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+}
+sett-pub() {
+    clear
+    echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+    echo -e "\033[0;34m│$NC$L1\033[41m  CHANGE FUB KEY DOMAIN VPS    $NC\033[0;34m│$NC"
+    echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+    echo ""
+    read -rp "  Input ur PubKey : " -e newpub
+    read -rp "  Input ur PrivateKey : " -e newkey
+    cat >/etc/slowdns/server.pub <<EOF
+$newpub
+EOF
+    cat >/etc/slowdns/server.key <<EOF
+$newkey
+EOF
+    chmod +x /etc/slowdns/server.pub
+    chmod +x /etc/slowdns/server.key
+    clear
+    echo ""
+    printf "\e[1;92m       \e[0m\e[1;77mSuccessfull Setup SlowDns     \e[0m\n"
+    echo "   ---------------------------------"
+    echo "   last PubKey : $ns"
+    echo "   last PrivateKey : $key"
+    echo "   New PubKey : $newpub"
+    echo "   New PrivateKey : $newpub"
+    echo ""
+    read -n 1 -s -r -p "Press any key to back on menu"
+    settings
+
+    echo ""
+}
+clear
+echo -e
+echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+echo -e "\033[0;34m│$NC$L1\033[41m         SYSTEM SETTINGS       $NC\033[0;34m│$NC"
+echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+echo -e "\033[0;34m┌───────────────────────────────┐\033[0m"
+echo -e "\033[0;34m│$NC [${GREEN}01${NC}]$L1 CHECK RUNNING SYSTEM${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}02${NC}]$L1 CHECK USAGE BANDWITH${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}03${NC}]$L1 AUTO BACKUP DATA SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}04${NC}]$L1 BACKUP DATA SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}05${NC}]$L1 RESTORE DATA SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}06${NC}]$L1 INFORMATION PORT${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}07${NC}]$L1 RESTART ALL SERVICE${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}08${NC}]$L1 CHANGE DOMAIN SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}09${NC}]$L1 CHANGE NAMESERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}10${NC}]$L1 CHANGE PUBKEY/PRIVATEKEY${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}11${NC}]$L1 CHANGE BANNER SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}12${NC}]$L1 CLEAR LOG ALL SERVICE${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}13${NC}]$L1 REBOOT SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}14${NC}]$L1 LOAD SYSTEM SERVER${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}15${NC}]$L1 POINTING IP VPS${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}16${NC}]$L1 INSTALL TELEGRAM BOT${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}17${NC}]$L1 MENU ADD ADMIN BOT${NC}"
+echo -e "\033[0;34m└───────────────────────────────┘\033[0m"
+echo -e ""
+read -p "  Select From Options [ 1 - 17 ] : " menu
+case $menu in
+1 | 01)
+clear
+run
+;;
+2 | 02)
+clear
+cek-bw
+;;
+3 | 03)
+clear
+autobackup
+;;
+4 | 04)
+clear
+backup
+;;
+5 | 05)
+clear
+restore
+;;
+6 | 06)
+clear
+portin
+;;
+7 | 07)
+clear
+restart
+;;
+8 | 08)
+clear
+chnge-domain
+;;
+9 | 09)
+clear
+chnge-ns
+;;
+10)
+clear
+sett-pub
+;;
+11)
+clear
+nano /etc/geovpn.txt
+clear
+sec=1
+echo ""
+spinner=(⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
+while [ $sec -gt 0 ]; do
+  echo -ne "\e[32m ${spinner[sec]} Back to Menu $sec seconds...\r"
+  sleep 1
+  sec=$(($sec - 1))
+done
+clear
+echo ""
+systemctl restart dropbear
+settings
+;;
+12)
+clear
+clearlog
+;;
+13)
+clear
+reboot
+;;
+14)
+clear
+gotop
+clear
+sec=1
+echo ""
+spinner=(⣻ ⢿ ⡿ ⣟ ⣯ ⣷)
+while [ $sec -gt 0 ]; do
+  echo -ne "\e[32m ${spinner[sec]} Back to Menu $sec seconds...\r"
+  sleep 1
+  sec=$(($sec - 1))
+done
+clear
+echo ""
+settings
+;;
+15)
+clear
+gratis
+;;
+16)
+clear
+wget https://jaka1m.github.io/project/ambe/ssh/on.sh; bash on.sh
+;;
+17)
+clear
+m-bot
+;;
+0 | 00)
+clear
+menu
+exit
+;;
+x)
+settings
+;;
+*)
+echo -e ""
+settings
+;;
+esac

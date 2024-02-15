@@ -1,0 +1,132 @@
+#!/bin/bash
+# //====================================================
+# //	System Request:Debian 9+/Ubuntu 18.04+/20+
+# //	Author:	Geo Project
+# //	Dscription: Xray Menu Management
+# //	email: admin@geolstore.net
+# //  telegram: https://t.me/tau_samawa
+# //====================================================
+clear
+echo -e "  ${OR}──────────────────────────────────────${NC}"
+printf "\e[1;92m     ⚜⚜  \e[0m\e[1;77m Trial SSH OVPN Account \e[1;92m⚜⚜  \e[0m\n"
+echo -e "  ${OR}──────────────────────────────────────${NC}"
+echo ""
+read -p "  Expired (Minutes): " timer
+
+user=trial$(tr </dev/urandom -dc X-Z0-9 | head -c4)
+PASSWD=$(tr </dev/urandom -dc X-Z0-9 | head -c4)
+useradd -e $(date -d "1 days" +"%Y-%m-%d") -s /bin/false -M $user
+exp="$(chage -l $user | grep "Account expires" | awk -F": " '{print $2}')"
+echo -e "$PASSWD\n$PASSWD\n" | passwd $user &>/dev/null
+
+if [[ ${c} != "0" ]]; then
+  echo "${iplim}" >/etc/ssh/${user}
+fi
+DATADB=$(cat /etc/ssh/.ssh.db | grep "^###" | grep -w "${user}" | awk '{print $2}')
+if [[ "${DATADB}" != '' ]]; then
+  sed -i "/\b${user}\b/d" /etc/ssh/.ssh.db
+fi
+echo "### ${user} ${dbexp}" >>/etc/ssh/.ssh.db
+cat >/var/www/html/ssh-$user.txt <<END
+
+---------------------
+Format SSH OVPN Account
+---------------------
+Username         : $user
+Password         : $PASSWD
+---------------------
+IP               : $MYIP
+Host             : $domain
+Port OpenSSH     : 443, 80, 22
+Port UdpSSH      : 1-65535
+Port Dropbear    : 443, 109
+Port Dropbear WS : 443, 109
+Port SSH WS      : 80
+Port SSH SSL WS  : 443
+Port SSL/TLS     : 443
+Port OVPN WS SSL : 443
+Port OVPN SSL    : 443
+Port OVPN TCP    : 443, 1194
+Port OVPN UDP    : 2200
+BadVPN UDP       : 7100, 7300, 7300
+---------------------
+Payload WSS: GET wss://BUG.COM/ HTTP/1.1[crlf]Host: $domain[crlf]Upgrade: websocket[crlf][crlf] 
+---------------------
+OpenVPN Link     : http://$domain:81
+---------------------
+Expired          : $timer Minutes
+---------------------
+
+END
+CHATID="$CHATID"
+KEY="$KEY"
+TIME="$TIME"
+URL="$URL"
+TEXT="
+<code>====================</code>
+<code>SSH OVPN Account     </code>
+<code>====================</code>
+<code>Username         : </code> <code>$user</code>
+<code>Password         : </code> <code>$PASSWD</code>
+<code>====================</code>
+<code>IP               : $MYIP</code>
+<code>Host             : </code> <code>$domain</code>
+<code>Port OpenSSH     : 443, 80, 22</code>
+<code>Port Dropbear    : 443, 109</code>
+<code>Port SSH WS      : 80, 8080 </code>
+<code>Port SSH UDP     : 1-65535 </code>
+<code>Port SSH SSL WS  : 443</code>
+<code>Port SSL/TLS     : 443</code>
+<code>Port OVPN WS SSL : 443</code>
+<code>Port OVPN SSL    : 443</code>
+<code>Port OVPN TCP    : 443, 1194</code>
+<code>Port OVPN UDP    : 2200</code>
+<code>BadVPN UDP       : 7100, 7300, 7300</code>
+<code>====================</code>
+<code>Payload WSS      : </code><code>GET wss://BUG.COM/ HTTP/1.1[crlf]Host: $domain[crlf]Upgrade: websocket[crlf][crlf]</code>
+<code>====================</code>
+OVPN Download : https://$domain:81/
+<code>====================</code>
+<code>Save Link Account: </code>https://$domain:81/ssh-$user.txt
+<code>====================</code>
+Aktif Selama         : $timer Minutes
+<code>====================</code>
+"
+
+curl -s --max-time $TIME -d "chat_id=$ADMIN&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+echo ""
+systemctl restart sshd
+tmux new-session -d -s $user "trial trialssh $user $timer"
+clear
+echo -e "
+\033[0;34m====================\033[0m
+\e[92;1m  SSH OVPN Account     \E[0m
+\033[0;34m====================\033[0m
+Username         : $user
+Password         : $PASSWD
+\033[0;34m====================\033[0m
+IP               : $IP
+Host             : $domain
+Port OpenSSH     : 443, 80, 22
+Port UdpSSH      : 1-65535
+Port Dropbear    : 443, 109
+Port Dropbear WS : 443, 109
+Port SSH WS      : 80, 8080
+Port SSH SSL WS  : 443
+Port SSL/TLS     : 443
+Port OVPN SSL    : 443
+Port OVPN TCP    : 443, 1194
+Proxy Squid      : 8000
+Port OVPN UDP    : 2200
+BadVPN UDP       : 7100, 7300, 7300
+\033[0;34m====================\033[0m
+Payload WSS      : GET wss://BUG.COM/ HTTP/1.1[crlf]Host: $domain[crlf]Upgrade: websocket[crlf][crlf]
+\033[0;34m====================\033[0m
+OpenVPN Link     : https://$domain:81
+\033[0;34m====================\033[0m
+Save Link Account: https://$domain:81/ssh-$user.txt
+\033[0;34m====================\033[0m
+Expired          : $timer Minutes
+\033[0;34m====================\033[0m
+" | tee -a /etc/xray/log-create-${user}.log
+echo ""

@@ -1,0 +1,439 @@
+#!/bin/bash
+# //====================================================
+# //	System Request:Debian 9+/Ubuntu 18.04+/20+
+# //	Author:	Geo Project
+# //	Dscription: Xray Menu Management
+# //	email: admin@geolstore.net
+# //  telegram: https://t.me/tau_samawa
+# //====================================================
+
+# // Root Checking
+if [ "${EUID}" -ne 0 ]; then
+		echo -e "${EROR} Please Run This Script As Root User !"
+		exit 1
+fi
+
+# // Export Color & Information
+export RED='\033[0;31m'
+export GREEN='\033[0;32m'
+export YELLOW='\033[0;33m'
+export BLUE='\033[0;34m'
+export PURPLE='\033[0;35m'
+export CYAN='${L1}'
+export LIGHT='\033[0;37m'
+export NC='\033[0m'
+OR='\033[1;93m'
+Lred='\e[91m'
+LLgreen='\e[92m'
+Lyellow='\e[93m'
+yellow="\033[1;33m"
+green="\e[92;1m"
+yellow="\033[1;33m"
+cyan="\033[1;36m"
+
+# // Export Banner Status Information
+export EROR="[${RED} ERROR ${NC}]"
+export INFO="[${YELLOW} INFO ${NC}]"
+export OKEY="[${GREEN} OKEY ${NC}]"
+export PENDING="[${YELLOW} PENDING ${NC}]"
+export SEND="[${YELLOW} SEND ${NC}]"
+export RECEIVE="[${YELLOW} RECEIVE ${NC}]"
+
+# // Export Align
+export BOLD="\e[1m"
+export WARNING="${RED}\e[5m"
+export UNDERLINE="\e[4m"
+
+# // Exporting URL Host
+export Server_URLL="raw.githubusercontent.com/jaka1m/perizinan/main"
+export Server_Port="443"
+export Server_IP="underfined"
+export Script_Mode="Stable"
+export Auther="geovpn"
+MYIP=$(curl -sS ipv4.icanhazip.com)
+domain=$(cat /etc/xray/domain)
+
+# // Exporting IP Address
+export IP=$( curl -sS ipinfo.io/ip )
+
+# // Exporting Network Interface
+export NETWORK_IFACE="$(ip route show to default | awk '{print $5}')"
+
+# // Validate Result ( 1 )
+touch /etc/${Auther}/license.key
+export Your_License_Key="$( cat /etc/${Auther}/license.key | awk '{print $1}' )"
+export Validated_Your_License_Key_With_Server="$( curl -s https://${Server_URLL}/registered.txt | grep -w $Your_License_Key | head -n1 | cut -d ' ' -f 1 )"
+if [[ "$Validated_Your_License_Key_With_Server" == "$Your_License_Key" ]]; then
+    validated='true'
+else
+    echo -e "${EROR} License Key Not Valid"
+    exit 1
+fi
+
+# // Checking Script Expired
+exp=$( curl -s https://${Server_URLL}/registered.txt | grep -w $Your_License_Key | cut -d ' ' -f 4 )
+now=`date -d "0 days" +"%Y-%m-%d"`
+expired_date=$(date -d "$exp" +%s)
+now_date=$(date -d "$now" +%s)
+sisa_hari=$(( ($expired_date - $now_date) / 86400 ))
+if [[ $sisa_hari -lt 0 ]]; then
+    echo $sisa_hari > /etc/${Auther}/license-remaining-active-days.db
+    echo -e "${EROR} Your License Key Expired ( $sisa_hari Days )"
+    exit 1
+else
+    echo $sisa_hari > /etc/${Auther}/license-remaining-active-days.db
+fi
+clear
+function lockssh() {
+    clear
+    echo -e " ${cyan}=======================================${NC}"
+    printf "\e[1;92m    ⚜⚜\e[0m\e[1;77m  Lock SSH Ovpn Account  \e[1;92m⚜⚜\e[0m\n"
+    echo -e " ${cyan}=======================================${NC}"
+    NUMBER_OF_CLIENTS=$(grep -c -E "^### " "/etc/ssh/.ssh.db")
+    if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
+        echo ""
+        echo "   You have no existing clients!"
+        echo ""
+        exit 0
+    fi
+    echo ""
+    echo "     NO  USERNAME     EXPIRED"
+    echo -e " ${cyan}===============================${NC}"
+    grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2-3 | column -t | nl -s ') '
+    until [[ ${CLIENT_NUMBER} -ge 1 && ${CLIENT_NUMBER} -le ${NUMBER_OF_CLIENTS} ]]; do
+        if [[ ${CLIENT_NUMBER} == '1' ]]; then
+            read -rp "Select one client [1]: " CLIENT_NUMBER
+        else
+            echo ""
+            until [[ $CLIENT_NUMBER =~ ^[0-9]+$ ]]; do
+                read -rp "     Select one client [1-${NUMBER_OF_CLIENTS}]: " CLIENT_NUMBER
+            done
+            username=$(grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2 | sed -n "${CLIENT_NUMBER}"p)
+            clear
+            egrep "^$username" /etc/passwd >/dev/null
+            passwd -l $username
+            clear
+            echo -e "  ${cyan}=======================================${NC}"
+            echo -e "Username ${GREEN}$username${NC} successfully ${red}LOCKED!${NC}."
+            echo -e "Access Login to username ${GREEN}$username${NC} has been locked."
+            echo -e "  ${cyan}=======================================${NC}"
+            exit 0
+        fi
+    done
+}
+
+function unlockssh() {
+    clear
+    echo -e " ${cyan}=======================================${NC}"
+    printf "\e[1;92m   ⚜⚜\e[0m\e[1;77m  Unlock SSH Ovpn Account  \e[1;92m⚜⚜\e[0m\n"
+    echo -e " ${cyan}=======================================${NC}"
+    NUMBER_OF_CLIENTS=$(grep -c -E "^### " "/etc/ssh/.ssh.db")
+    if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
+        echo ""
+        echo "   You have no existing clients!"
+        echo ""
+        exit 0
+    fi
+    echo ""
+    echo "     NO  USERNAME     EXPIRED"
+    echo -e " ${cyan}===============================${NC}"
+    grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2-3 | column -t | nl -s ') '
+    until [[ ${CLIENT_NUMBER} -ge 1 && ${CLIENT_NUMBER} -le ${NUMBER_OF_CLIENTS} ]]; do
+        if [[ ${CLIENT_NUMBER} == '1' ]]; then
+            read -rp "Select one client [1]: " CLIENT_NUMBER
+        else
+            echo ""
+            until [[ $CLIENT_NUMBER =~ ^[0-9]+$ ]]; do
+                read -rp "     Select one client [1-${NUMBER_OF_CLIENTS}]: " CLIENT_NUMBER
+            done
+            username=$(grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2 | sed -n "${CLIENT_NUMBER}"p)
+            clear
+            egrep "^$username" /etc/passwd >/dev/null
+            passwd -u $username
+            clear
+            echo -e " ${cyan}=======================================${NC}"
+            echo -e "Username ${GREEN}$username${NC} successfully ${GREEN}UNLOCKED${NC}."
+            echo -e "Access for Username ${GREEN}$username${NC} has been restored"
+            echo -e " ${cyan}=======================================${NC}"
+            exit 0
+        fi
+    done
+
+}
+
+detail-ssh() {
+    clear
+    echo -e " ${cyan}=======================================${NC}"
+    printf "\e[1;92m  ⚜⚜\e[0m\e[1;77m SSH OVPN User Detail Account \e[1;92m⚜⚜\e[0m\n"
+    echo -e " ${cyan}=======================================${NC}"
+    NUMBER_OF_CLIENTS=$(grep -c -E "^### " "/etc/ssh/.ssh.db")
+    if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
+        echo ""
+        echo "   You have no existing clients!"
+        echo ""
+        exit 0
+    fi
+    userlist=$(grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2-3 | column -t | nl)
+    echo ""
+    echo "     NO  USERNAME     EXPIRED"
+    echo -e " ${cyan}===============================${NC}"
+    grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2-3 | column -t | nl -s ') '
+    until [[ ${CLIENT_NUMBER} -ge 1 && ${CLIENT_NUMBER} -le ${NUMBER_OF_CLIENTS} ]]; do
+        if [[ ${CLIENT_NUMBER} == '1' ]]; then
+            read -rp "Select one client [1]: " CLIENT_NUMBER
+        else
+            echo ""
+            until [[ $CLIENT_NUMBER =~ ^[0-9]+$ ]]; do
+                read -rp "     Select one client [1-${NUMBER_OF_CLIENTS}]: " CLIENT_NUMBER
+            done
+            username=$(grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2 | sed -n "${CLIENT_NUMBER}"p)
+            clear
+            cat /etc/xray/log-createssh-${username}.log
+            exit
+        fi
+    done
+    
+}
+chngelimit() {
+    clear
+    echo -e " ${cyan}=======================================${NC}"
+    printf "\e[1;92m    ⚜⚜\e[0m\e[1;77m  Chnge SSH OVPN Account  \e[1;92m⚜⚜\e[0m\n"
+    echo -e " ${cyan}=======================================${NC}"
+    NUMBER_OF_CLIENTS=$(grep -c -E "^### " "/etc/ssh/.ssh.db")
+    if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
+        echo ""
+        echo "   You have no existing clients!"
+        echo ""
+        exit 0
+    fi
+    echo ""
+    echo "     NO  USERNAME     EXPIRED"
+    echo -e " ${cyan}===============================${NC}"
+    grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2-3 | column -t | nl -s ') '
+    until [[ ${CLIENT_NUMBER} -ge 1 && ${CLIENT_NUMBER} -le ${NUMBER_OF_CLIENTS} ]]; do
+        if [[ ${CLIENT_NUMBER} == '1' ]]; then
+            read -rp "Select one client [1]: " CLIENT_NUMBER
+        else
+            echo ""
+            until [[ $CLIENT_NUMBER =~ ^[0-9]+$ ]]; do
+                read -rp "     Select one client [1-${NUMBER_OF_CLIENTS}]: " CLIENT_NUMBER
+            done
+            user=$(grep -E "^### " "/etc/ssh/.ssh.db" | cut -d ' ' -f 2 | sed -n "${CLIENT_NUMBER}"p)
+            until [[ $iplim =~ ^[0-9]+$ ]]; do
+                read -p "Limit User (IP): " iplim
+            done
+
+            if [ -z ${iplim} ]; then
+                iplim="0"
+            fi
+
+            if [[ ${c} != "0" ]]; then
+                echo "${iplim}" >/etc/ssh/${user}
+            fi
+            clear
+            echo -e "  ${cyan}=======================================${NC}"
+            echo -e "Chnge Vmess Account Username ${GREEN}$user${NC} Successfully"
+            echo -e "limit Login SSH OVPN IP $iplim Device"
+            echo -e "  ${cyan}=======================================${NC}"
+            echo ""
+            exit
+        fi
+    done
+}
+autokill-ssh() {
+    green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
+    Info="${green_font_prefix}[ON]${Font_color_suffix}"
+    Error="${Red_font_prefix}[OFF]${Font_color_suffix}"
+    cek=$(grep -c -E "^# Autokill" /etc/cron.d/kills)
+    if [[ "$cek" = "1" ]]; then
+        sts="${Info}"
+    else
+        sts="${Error}"
+    fi
+    clear
+    echo -e "  ${cyan}=======================================${NC}"
+    printf "\e[1;92m    ⚜⚜\e[0m\e[1;77m AutoKill SSH OVPN Account \e[1;92m⚜⚜\e[0m\n"
+    echo -e "  ${cyan}=======================================${NC}"
+    echo -e "  Status Autokill : $sts        "
+    echo -e ""
+    echo -e "  1) AutoKill After 5 Minutes"
+    echo -e "  2) AutoKill After 10 Minutes"
+    echo -e "  3) AutoKill After 15 Minutes"
+    echo -e "  4) Turn Off AutoKill/MultiLogin"
+    echo ""
+    echo -e "  ${cyan}=======================================${NC}"
+    echo -e ""
+    until [[ $AutoKill =~ ^[1-4]+$ ]]; do
+        read -p "Select From Options [1-4 or x] :  " AutoKill
+    done
+    case $AutoKill in
+    1)
+        echo -e ""
+        sleep 1
+        clear
+        echo >/etc/cron.d/kills
+        echo "# Autokill" >/etc/cron.d/kills
+        echo "*/5 * * * *  root /usr/local/sbin/kills" >>/etc/cron.d/kills
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        echo -e ""
+        #    echo -e "      Allowed MultiLogin : $sts"
+        echo -e "      AutoKill Every     : 5 Minutes"
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        ;;
+    2)
+        echo -e ""
+        sleep 1
+        clear
+        echo >/etc/cron.d/kills
+        echo "# Autokill" >/etc/cron.d/kills
+        echo "*/10 * * * *  root /usr/local/sbin/kills" >>/etc/cron.d/kills
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        echo -e ""
+        #    echo -e "      Allowed MultiLogin : $sts"
+        echo -e "      AutoKill Every     : 10 Minutes"
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        ;;
+    3)
+        echo -e ""
+        sleep 1
+        clear
+        echo >/etc/cron.d/kills
+        echo "# Autokill" >/etc/cron.d/kills
+        echo "*/15 * * * *  root /usr/local/sbin/kills" >>/etc/cron.d/kills
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        echo -e ""
+        #    echo -e "      Allowed MultiLogin : $sts"
+        echo -e "      AutoKill Every     : 15 Minutes"
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        ;;
+    4)
+        clear
+        rm /etc/cron.d/kills
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        echo -e ""
+        echo -e "      AutoKill MultiLogin Turned Off  "
+        echo -e ""
+        echo -e "  ${cyan}=======================================${NC}"
+        service cron restart >/dev/null 2>&1
+        service cron reload >/dev/null 2>&1
+        ;;
+    x)
+        clear
+        ;;
+    esac
+    echo -e ""
+}
+member() {
+    clear
+    NMS="${RED}LOCKED${NC}"
+    NMM="${GREEN}UNLOCKED${NC}"
+    echo -e " ${cyan}=======================================${NC}"
+    printf "\e[1;92m    ⚜⚜\e[0m\e[1;77m Detail SSH OVPN Account \e[1;92m⚜⚜\e[0m\n"
+    echo -e " ${cyan}=======================================${NC}"
+    while read expired; do
+        AKUN="$(echo $expired | cut -d: -f1)"
+        ID="$(echo $expired | grep -v nobody | cut -d: -f3)"
+        exp="$(chage -l $AKUN | grep "Account expires" | awk -F": " '{print $2}')"
+        status="$(passwd -S $AKUN | awk '{print $2}')"
+        if [[ $ID -ge 1000 ]]; then
+            if [[ "$status" = "L" ]]; then
+                echo -e " \e[032;1mAccount${NC}   : ${yellow}$AKUN${NC}"
+                echo -e " \e[032;1mExpired${NC}   : ${yellow}$exp${NC}"
+                echo -e " \e[032;1mStatus${NC}    : $NMS"
+                echo -e " ${cyan}=======================================${NC}"
+            else
+                echo -e " \e[032;1mAccount${NC}   : ${yellow}$AKUN${NC}"
+                echo -e " \e[032;1mExpired${NC}   : ${yellow}$exp${NC}"
+                echo -e " \e[032;1mStatus${NC}    : $NMM"
+                echo -e " ${cyan}=======================================${NC}"
+            fi
+        fi
+    done </etc/passwd
+    JUMLAH="$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | wc -l)"
+    echo -e " Account number: $JUMLAH user"
+    echo -e " ${cyan}=======================================${NC}"
+    echo -e ""
+    read -n 1 -s -r -p "Press [ Enter ] to back on menu"
+m-sshws
+}
+green="\e[92;1m"
+NC='\033[0m'
+echo -e "\033[0;34m┌──────────────────────────────────┐\033[0m"
+echo -e "\033[0;34m│$NC$L1\033[41m     MENU MANAGER SSH OVPN        $NC\033[0;34m│$NC"
+echo -e "\033[0;34m└──────────────────────────────────┘\033[0m"
+echo -e "\033[0;34m┌──────────────────────────────────┐\033[0m"
+echo -e "\033[0;34m│$NC [${GREEN}01${NC}]$L1 Creating a SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}02${NC}]$L1 Delete SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}03${NC}]$L1 Renew SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}04${NC}]$L1 Check SSH OVPN login Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}05${NC}]$L1 Member SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}06${NC}]$L1 Chnge limit SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}07${NC}]$L1 Locked SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}08${NC}]$L1 Unlocked SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}09${NC}]$L1 Detail SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}10${NC}]$L1 Autokill SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC [${GREEN}11${NC}]$L1 Trial SSH OVPN Account${NC}"
+echo -e "\033[0;34m│$NC "
+echo -e "\033[0;34m│$NC [${GREEN}00${NC}]$L1 Back to Menu \033[1;32m<\033[1;33m<\033[1;31m<\033[1;31m$NC \E[0m\033[0;34m $NC"
+echo -e "\033[0;34m└──────────────────────────────────┘\033[0m"
+echo -e ""
+read -p "Select From Options [ 1 - 11 ] : " menu
+echo -e ""
+case $menu in
+1 | 01)
+    addssh
+    ;;
+2 | 02)
+    delssh
+    ;;
+3 | 03)
+    renewssh
+    ;;
+4 | 03)
+    cekssh
+    read -n 1 -s -r -p "Press [ Enter ] to back on menu"
+m-sshws
+    ;;
+5 | 05)
+    member
+    ;;
+6 | 06)
+    chngelimit
+    ;;
+7 | 07)
+    lockssh
+    ;;
+8 | 08)
+    unlockssh
+    ;;
+9 | 09)
+    detail-ssh
+    ;;
+10)
+    autokill-ssh
+    ;;
+11)
+    trialssh
+    ;;
+0 | 00)
+clear
+menu
+;;
+*)
+echo -e ""
+m-sshws
+;;
+esac

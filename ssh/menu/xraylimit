@@ -1,0 +1,275 @@
+#!/bin/bash
+clear
+source '/home/geo/var.txt'
+TIME="10"
+URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+MYIP=$(curl -sS ipv4.icanhazip.com)
+domain=$(cat /etc/xray/domain)
+PUB=$(cat /etc/slowdns/server.pub)
+NS=$(cat /etc/xray/ns.txt)
+inaIP=$(wget -qO- ipv4.icanhazip.com)
+timenow=$(date +%T)
+tim2sec() {
+  mult=1
+  arg="$1"
+  inu=0
+  while [ ${#arg} -gt 0 ]; do
+    prev="${arg%:*}"
+    if [ "$prev" = "$arg" ]; then
+      curr="${arg#0}"
+      prev=""
+    else
+      curr="${arg##*:}"
+      curr="${curr#0}"
+    fi
+    curr="${curr%%.*}"
+    inu=$((inu + curr * mult))
+    mult=$((mult * 60))
+    arg="$prev"
+  done
+  echo "$inu"
+}
+# ------ VMESS IP
+function vmess() {
+  vm=($(cat /etc/vmess/.vmess.db | grep '^###' | cut -d ' ' -f 2 | sort | uniq))
+  echo -n >/tmp/vm
+  for db1 in ${vm[@]}; do
+    logvm=$(cat /var/log/xray/access.log | grep -w "email: ${db1}" | tail -n 150 | sort | uniq)
+    while read a; do
+      if [[ -n ${a} ]]; then
+        set -- ${a}
+        ina="${7}"
+        inu="${2}"
+        anu="${3}"
+        enu=$(echo "${anu}" | sed 's/tcp://g' | sed '/^$/d' | cut -d. -f1,2,3 | sort | uniq)
+        now=$(tim2sec ${timenow})
+        client=$(tim2sec ${inu})
+        nowt=$(((${now} - ${client})))
+        if [[ ${nowt} -lt 40 ]]; then
+          cat /tmp/vm | grep -w "${ina}" | grep -w "${enu}" >/dev/null
+          if [[ $? -eq 1 ]]; then
+            echo "${ina} ${inu} ${enu}" >>/tmp/vm
+            splvm=$(cat /tmp/vm)
+          fi
+        fi
+      fi
+    done <<<"${logvm}"
+  done
+  if [[ ${splvm} != "" ]]; then
+    for vmuser in ${vm[@]}; do
+      vmhas=$(cat /tmp/vm | grep -w "${vmuser}" | wc -l)
+      vmsde=$(ls "/etc/vmess" | grep -w "${vmuser}IP")
+      asas=$(cat /tmp/vm | grep -w "${vmuser}" | cut -d ' ' -f 2-3 | sort | uniq)
+      if [[ -z ${vmsde} ]]; then
+        vmip="0"
+      else
+        vmip=$(cat /etc/vmess/${vmuser}IP)
+      fi
+      if [[ ${vmhas} -gt $vmip ]]; then
+        TIME="10"
+        URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+        TEXT="
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   ⚠️VMESS NOTIF⚠️</b>
+<b>     User Multi Login</b>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>USERNAME :</b> <code>$vmuser </code>
+<b>TOTAL IP :</b> <code>${vmhas} </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   TIME          LIST IP</b>
+<code>$asas </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<code>I REMOVE ACCOUNT</code>
+<code>NO MULTI LOGINS!</code>
+"'&reply_markup={"inline_keyboard":[[{"text":"DELETE ACCOUNT":"/remove ${vmuser}"}]]}'
+        curl -s --max-time $TIME -d "chat_id=$ADMIN&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+      fi
+    done
+  fi
+  rm -rf /tmp/vm
+}
+vmess
+
+# ------ VLESS IP
+function vless() {
+  vldat=($(cat /etc/vless/.vless.db | grep '^###' | cut -d ' ' -f 2 | sort | uniq))
+  echo -n >/tmp/vl
+  for db2 in ${vldat[@]}; do
+    logvl=$(cat /var/log/xray/access.log | grep -w "email: ${db2}" | tail -n 150 | sort | uniq)
+    while read a; do
+      if [[ -n ${a} ]]; then
+        set -- ${a}
+        ina="${7}"
+        inu="${2}"
+        anu="${3}"
+        enu=$(echo "${anu}" | sed 's/tcp://g' | sed '/^$/d' | cut -d. -f1,2,3 | sort | uniq)
+        now=$(tim2sec ${timenow})
+        client=$(tim2sec ${inu})
+        nowt=$(((${now} - ${client})))
+        if [[ ${nowt} -lt 40 ]]; then
+          cat /tmp/vl | grep -w "${ina}" | grep -w "${enu}" >/dev/null
+          if [[ $? -eq 1 ]]; then
+            echo "${ina} ${inu} ${enu}" >>/tmp/vl
+            spll=$(cat /tmp/vl)
+          fi
+        fi
+      fi
+    done <<<"${logvl}"
+  done
+  if [[ ${spll} != "" ]]; then
+    for vlus in ${vldat[@]}; do
+      vlsss=$(cat /tmp/vl | grep -w "${vlus}" | wc -l)
+      sdf=$(ls "/etc/vless" | grep -w "${vlus}IP")
+      asass=$(cat /tmp/vl | grep -w "${vlus}" | cut -d ' ' -f 2-3 | sort | uniq)
+      if [[ -z ${sdf} ]]; then
+        vmip="0"
+      else
+        vmip=$(cat /etc/vless/${vlus}IP)
+      fi
+      if [[ ${vlsss} -gt $vmip ]]; then
+        TIME="10"
+        URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+        TEXT="
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   ⚠️VLESS NOTIF⚠️</b>
+<b>     User Multi Login</b>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>USERNAME :</b> <code>$vlus </code>
+<b>TOTAL IP :</b> <code>${vlsss} </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   TIME          LIST IP</b>
+<code>$asass </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<code>I REMOVE ACCOUNT</code>
+<code>NO MULTI LOGINS!</code>
+"
+        curl -s --max-time $TIME -d "chat_id=$ADMIN&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+      fi
+    done
+  fi
+  rm -rf /tmp/vl
+}
+vless
+
+# ------ TROJAN IP
+function trojan() {
+  trda=($(cat /etc/trojan/.trojan.db | grep '^###' | cut -d ' ' -f 2 | sort | uniq))
+  echo -n >/tmp/tr
+  for db3 in ${trda[@]}; do
+    logtr=$(cat /var/log/xray/access.log | grep -w "email: ${db3}" | tail -n 150 | sort | uniq)
+    while read a; do
+      if [[ -n ${a} ]]; then
+        set -- ${a}
+        ina="${7}"
+        inu="${2}"
+        anu="${3}"
+        enu=$(echo "${anu}" | sed 's/tcp://g' | sed '/^$/d' | cut -d. -f1,2,3 | sort | uniq)
+        now=$(tim2sec ${timenow})
+        client=$(tim2sec ${inu})
+        nowt=$(((${now} - ${client})))
+        if [[ ${nowt} -lt 40 ]]; then
+          cat /tmp/tr | grep -w "${ina}" | grep -w "${enu}" >/dev/null
+          if [[ $? -eq 1 ]]; then
+            echo "${ina} ${inu} ${enu}" >>/tmp/tr
+            restr=$(cat /tmp/tr)
+          fi
+        fi
+      fi
+    done <<<"${logtr}"
+  done
+  if [[ ${restr} != "" ]]; then
+    for usrtr in ${trda[@]}; do
+      trip=$(cat /tmp/tr | grep -w "${usrtr}" | wc -l)
+      sdf=$(ls "/etc/trojan" | grep -w "${usrtr}IP")
+      asasss=$(cat /tmp/tr | grep -w "${usrtr}" | cut -d ' ' -f 2-3 | sort | uniq)
+      if [[ -z ${sdf} ]]; then
+        sadsde="0"
+      else
+        sadsde=$(cat /etc/trojan/${usrtr}IP)
+      fi
+      if [[ ${trip} -gt $sadsde ]]; then
+        TIME="10"
+        URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+        TEXT="
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   ⚠️TROJAN NOTIF⚠️</b>
+<b>      User Multi Login</b>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>USERNAME :</b> <code>$usrtr </code>
+<b>TOTAL IP :</b> <code>${trip} </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   TIME          LIST IP</b>
+<code>$asasss </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<code>I REMOVE ACCOUNT</code>
+<code>NO MULTI LOGINS!</code>
+"
+        curl -s --max-time $TIME -d "chat_id=$ADMIN&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+
+      fi
+    done
+  fi
+  rm -rf /tmp/tr
+}
+trojan
+
+# ------ SHDWSCK IP
+function shdwsk() {
+  ssdt=($(cat /etc/shadowsocks/.shadowsocks.db | grep '^###' | cut -d ' ' -f 2 | sort | uniq))
+  echo -n >/tmp/ss
+  for db4 in ${ssdt[@]}; do
+    logss=$(cat /var/log/xray/access.log | grep -w "email: ${db4}" | tail -n 150 | sort | uniq)
+    while read a; do
+      if [[ -n ${a} ]]; then
+        set -- ${a}
+        ina="${7}"
+        inu="${2}"
+        anu="${3}"
+        enu=$(echo "${anu}" | sed 's/tcp://g' | sed '/^$/d' | cut -d. -f1,2,3 | sort | uniq)
+        now=$(tim2sec ${timenow})
+        client=$(tim2sec ${inu})
+        nowt=$(((${now} - ${client})))
+        if [[ ${nowt} -lt 40 ]]; then
+          cat /tmp/ss | grep -w "${ina}" | grep -w "${enu}" >/dev/null
+          if [[ $? -eq 1 ]]; then
+            echo "${ina} ${inu} ${enu}" >>/tmp/ss
+            dewacs=$(cat /tmp/ss)
+          fi
+        fi
+      fi
+    done <<<"${logss}"
+  done
+  if [[ ${dewacs} != "" ]]; then
+    for sdfe in ${ssdt[@]}; do
+      decv=$(cat /tmp/ss | grep -w "${sdfe}" | wc -l)
+      ergeger=$(ls "/etc/shadowsocks" | grep -w "${sdfe}IP")
+      asswe=$(cat /tmp/ss | grep -w "${sdfe}" | cut -d ' ' -f 2-3 | sort | uniq)
+      if [[ -z ${ergeger} ]]; then
+        sdsrr="0"
+      else
+        sdsrr=$(cat /etc/shadowsocks/${sdfe}IP)
+      fi
+      if [[ ${decv} -gt $sdsrr ]]; then
+        TIME="10"
+        URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+        TEXT="
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>  ⚠️SHDWSCK NOTIF⚠️</b>
+<b>      User Multi Login</b>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>USERNAME :</b> <code>$sdfe </code>
+<b>TOTAL IP :</b> <code>${decv} </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<b>   TIME          LIST IP</b>
+<code>$asswe </code>
+<code>◇━━━━━━━━━━━━━━◇</code>
+<code>I REMOVE ACCOUNT</code>
+<code>NO MULTI LOGINS!</code>
+"
+        curl -s --max-time $TIME -d "chat_id=$ADMIN&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+      fi
+    done
+  fi
+  rm -rf /tmp/ss
+}
+shdwsk

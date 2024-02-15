@@ -1,0 +1,14 @@
+[Unit]
+Description=UDP HC GEOVPN
+
+[Service]
+User=root
+Type=simple
+ExecStart=/etc/geovpn/udp server
+WorkingDirectory=/etc/geovpn/
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=default.target
+

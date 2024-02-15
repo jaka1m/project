@@ -1,0 +1,166 @@
+#!/bin/bash
+clear
+red() { echo -e "\\033[32;1m${*}\\033[0m"; }
+domain=$(cat /etc/xray/domain)
+PUB=$(cat /etc/slowdns/server.pub)
+CITY=$(cat /etc/xray/city)
+NS=$(cat /etc/xray/ns)
+clear
+until [[ $user =~ ^[a-zA-Z0-9_]+$ && ${CLIENT_EXISTS} == '0' ]]; do
+  echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+  echo -e " \e[1;97;101m            ADD VLESS ACCOUNT           \e[0m"
+  echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+  read -p "User: " user
+  CLIENT_EXISTS=$(grep -w $user /etc/xray/config.json | wc -l)
+
+  if [[ ${CLIENT_EXISTS} == '1' ]]; then
+    clear
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo -e " \e[1;97;101m            ADD VLESS ACCOUNT           \e[0m"
+    echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo ""
+    echo "A client with the specified name was already created, please choose another name."
+    echo ""
+    echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    read -n 1 -s -r -p "Press [ Enter ] to back menu vless"
+    vless
+  fi
+done
+uuid=$(cat /proc/sys/kernel/random/uuid)
+read -p "Expired (days): " masaaktif
+read -p "Limit User (GB): " Quota
+max=2
+read -p "     Limit User (IP)  : " iplim
+user=Trial_`</dev/urandom tr -dc X-Z0-9 | head -c4`
+uuid=$(cat /proc/sys/kernel/random/uuid)
+exp=$(date -d "1 days" +"%Y-%m-%d")
+sed -i '/#vless$/a\#& '"$user $exp"'\
+},{"id": "'""$uuid""'","email": "'""$user""'"' /etc/xray/config.json
+sed -i '/#vlessgrpc$/a\#& '"$user $exp"'\
+},{"id": "'""$uuid""'","email": "'""$user""'"' /etc/xray/config.json
+
+vlesslink1="vless://${uuid}@${domain}:443?path=/vless&security=tls&encryption=none&host=${domain}&type=ws#${user}-WS-(CDN)-TLS"
+vlesslink2="vless://${uuid}@${domain}:80?path=/vless&encryption=none&host=${domain}&type=ws#${user}-WS-(CDN)-NTLS"
+vlesslink3="vless://${uuid}@${domain}:443?mode=gun&security=tls&encryption=none&type=grpc&serviceName=vless-grpc&sni=${domain}#${user}-(SNI)-GRPC"
+
+cat >/var/www/html/vless-$user.txt <<-END
+
+---------------------
+# Format Vless WS (CDN)
+---------------------
+
+- name: Vless-$user-WS (CDN)
+  server: ${domain}
+  port: 443
+  type: vless
+  uuid: ${uuid}
+  cipher: auto
+  tls: true
+  skip-cert-verify: true
+  servername: ${domain}
+  network: ws
+  ws-opts:
+    path: /vless
+    headers:
+      Host: ${domain}
+---------------------
+# Format Vless WS (CDN) Non TLS
+---------------------
+- name: Vless-$user-WS (CDN) Non TLS
+  server: ${domain}
+  port: 80
+  type: vless
+  uuid: ${uuid}
+  cipher: auto
+  tls: false
+  skip-cert-verify: false
+  servername: ${domain}
+  network: ws
+  ws-opts:
+    path: /vless
+    headers:
+      Host: ${domain}
+  udp: true
+---------------------
+#  Format Vless gRPC (SNI)
+---------------------
+- name: Vless-$user-gRPC (SNI)
+  server: ${domain}
+  port: 443
+  type: vless
+  uuid: ${uuid}
+  cipher: auto
+  tls: true
+  skip-cert-verify: true
+  servername: ${domain}
+  network: grpc
+  grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: vless-grpc
+  udp: true
+
+---------------------
+# Link Vless Account
+---------------------
+Link TLS : vless://${uuid}@${domain}:443?path=/vless&security=tls&encryption=none&type=ws#${user}-WS-(CDN)-TLS
+---------------------
+Link none TLS : vless://${uuid}@${domain}:80?path=/vless&encryption=none&type=ws#${user}-WS-(CDN)-NTLS
+---------------------
+Link GRPC :vless://${uuid}@${domain}:443?mode=gun&security=tls&encryption=none&type=grpc&serviceName=vless-grpc&sni=${domain}#${user}-(SNI)-GRPC
+---------------------
+
+END
+
+systemctl restart xray
+tmux new-session -d -s $user "trial trialvl $user ${timer}"
+systemctl restart xray
+if [ ! -e /etc/vless ]; then
+  mkdir -p /etc/vless
+fi
+if [ -z ${iplim} ]; then
+  iplim="0"
+fi
+if [ -z ${Quota} ]; then
+  Quota="0"
+fi
+c=$(echo "${Quota}" | sed 's/[^0-9]*//g')
+d=$((${c} * 1024 * 1024 * 1024))
+if [[ ${c} != "0" ]]; then
+  echo "${d}" >/etc/vless/${user}
+  echo "${iplim}" >/etc/vless/${user}IP
+fi
+DATADB=$(cat /etc/vless/.vless.db | grep "^###" | grep -w "${user}" | awk '{print $2}')
+if [[ "${DATADB}" != '' ]]; then
+  sed -i "/\b${user}\b/d" /etc/vless/.vless.db
+fi
+echo "### ${user} ${exp} ${uuid}" >>/etc/vless/.vless.db
+
+clear
+echo -e "
+\033[0;34m====================\033[0m
+\e[92;1m Xray/Vless Account    \E[0m
+\033[0;34m====================\033[0m
+Remarks     : ${user}
+Host Server : ${domain}
+User Quota  : ${Quota} GB
+User IP     : ${iplim} IP
+port TLS    : 443
+Port NTLS   : 80, 8080
+Network     : WS or gRPC
+ServiceName : vless-grpc
+Path        : /Multi/vless 
+User ID     : ${uuid}
+\033[0;34m====================\033[0m
+Link TLS  : ${vlesslink1}
+\033[0;34m====================\033[0m
+Link NTLS : ${vlesslink2}
+\033[0;34m====================\033[0m
+Link GRPC : ${vlesslink3}
+\033[0;34m====================\033[0m
+Format OpenClash : https://${domain}:81/vless-$user.txt
+\033[0;34m====================\033[0m
+Expired On : $timer Minutes
+\033[0;34m====================\033[0m
+" | tee -a /etc/xray/log-create-${user}.log
+echo -e ""
