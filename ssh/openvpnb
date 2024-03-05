@@ -116,11 +116,11 @@ function cert_ovpn() {
     cat >/lib/systemd/system/haproxy.service <<EOF
 [Unit]
 Description=GeoProject Load Balancer
-Documentation=geovpn
+Documentation=GEOVPN
 After=network-online.target rsyslog.service
 
 [Service]
-ExecStart=/usr/sbin/ftvpn -Ws -f /etc/haproxy/haproxy.cfg -p 18173 
+ExecStart=/usr/sbin/GeoProject -Ws -f /etc/haproxy/haproxy.cfg -p 18173 
 Restart=on-failure
 RestartPreventExitStatus=23
 LimitNPROC=10000
