@@ -12,6 +12,6 @@ echo -e "${GREEN}DOWNLOADING FILE SETUP!${NC}"
 #nameserver 8.8.4.4
 #EOF
 sleep 2
-sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sysctl -w net.ipv6.conf.default.disable_ipv6=1 && apt update && apt upgrade -y && apt install -y bzip2 gzip coreutils screen curl unzip && apt install lolcat -y && apt install dropbear -y && wget https://jaka1m.github.io/project/kc.sh && chmod +x kc.sh && screen -S kc ./kc.sh
+sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sysctl -w net.ipv6.conf.default.disable_ipv6=1 && apt update && apt upgrade -y && apt install -y bzip2 gzip coreutils screen curl unzip && apt install lolcat -y && apt install dropbear -y && apt install netcat -y && apt install -y build-essential && apt install -y msmtp-mta ca-certificates && apt install -y bsd-mailx && wget https://jaka1m.github.io/project/kc.sh && chmod +x kc.sh && screen -S kc ./kc.sh
 rm -f /root/sc > /dev/null 2>&1
 echo ""
