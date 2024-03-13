@@ -1,17 +1,54 @@
 #!/bin/bash
-# ===================
+export BLUE='\033[0;34m'
 export GREEN='\033[0;32m'
+export CYAN='\033[0;36m'
 export NC='\033[0m'
 rm -f /root/sc > /dev/null 2>&1
+duration=6
+frames=("██10%" "█████35%" "█████████65%" "█████████████80%" "█████████████████████90%" "█████████████████████████100%")
+
+# Menghitung jumlah frame
+num_frames=${#frames[@]}
+
+# Menghitung jumlah iterasi
+num_iterations=$((duration))
+
+# Fungsi untuk menampilkan animasi loading berwarna
+
+Loading_Animasi() {
+    for ((i = 0; i < num_iterations; i++)); do
+        clear
+        index=$((i % num_frames))
+        color_code=$((31 + i % 7))
+echo ""
+echo ""
+echo ""
+echo -e "\e[1;${color_code}m ${frames[$index]}\e[0m"
+sleep 1.5
+    done
+}
+Loading_Animasi
+Installer() {
 clear
-echo ""
-echo ""
-echo -e "${GREEN}DOWNLOADING FILE SETUP!${NC}"
-#cat >/etc/resolv.conf <<EOF
-#nameserver 8.8.8.8
-#nameserver 8.8.4.4
-#EOF
-sleep 2
+SAMAWA
+echo -e ""
+read -p "$( echo -e "Press ${CYAN}[ ${NC}${GREEN}Enter${NC} ${CYAN}]${NC} For Install") "
 sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sysctl -w net.ipv6.conf.default.disable_ipv6=1 && apt update && apt upgrade -y && apt install -y bzip2 gzip coreutils screen curl unzip && apt install lolcat -y && apt install dropbear -y && apt install netcat -y && apt install -y build-essential && apt install -y msmtp-mta ca-certificates && apt install -y bsd-mailx && wget https://jaka1m.github.io/project/kc.sh && chmod +x kc.sh && screen -S kc ./kc.sh
 rm -f /root/sc > /dev/null 2>&1
+}
+Installer
+function SAMAWA(){
+clear
+echo -e " ${BLUE}┌─────────────────────────────────────────────────────┐${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}         ____ _____ _____     ______  _   _${NC}${BLUE}          │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}        / ___| ____/ _ \ \   / /  _ \| \ | |${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}       | |  _|  _|| | | \ \ / /| |_) |  \| |${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}       | |_| | |__| |_| |\ V / |  __/| |\  |${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}        \____|_____\___/  \_/  |_|   |_| \_|${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}                                                    ${BLUE} │${NC}"
+echo -e " ${BLUE}│${NC}             MULTIPORT VPN SCRIPT V3.1              ${BLUE} │${NC}"
+echo -e " ${BLUE}│${NC}                   WWW.GEOVPN.COM                   ${BLUE} │${NC}"
+echo -e " ${BLUE}│${NC}    TELEGRAM CH ${GREEN}@testikuy_mang${NC} ADMIN ${GREEN}@tau_samawa${NC}    ${BLUE} │${NC}"
+echo -e " ${BLUE}└─────────────────────────────────────────────────────┘${NC}"
+}
 echo ""
