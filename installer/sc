@@ -7,13 +7,12 @@ rm -f /root/sc > /dev/null 2>&1
 duration=6
 frames=("██10%" "█████35%" "█████████65%" "█████████████80%" "█████████████████████90%" "█████████████████████████100%")
 
-# Menghitung jumlah frame
+#>>>GEO PROJECT
 num_frames=${#frames[@]}
 
-# Menghitung jumlah iterasi
+#>>>GEO PROJECT
 num_iterations=$((duration))
 
-# Fungsi untuk menampilkan animasi loading berwarna
 function SAMAWA(){
 clear
 echo -e " ${BLUE}┌─────────────────────────────────────────────────────┐${NC}"
@@ -30,7 +29,7 @@ echo -e " ${BLUE}└────────────────────
 }
 echo ""
 
-Loading_Animasi() {
+Loading() {
     for ((i = 0; i < num_iterations; i++)); do
         clear
         index=$((i % num_frames))
@@ -42,7 +41,7 @@ echo -e "\e[1;${color_code}m ${frames[$index]}\e[0m"
 sleep 1
     done
 }
-Loading_Animasi
+Loading
 Installer() {
 clear
 SAMAWA
