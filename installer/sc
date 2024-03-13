@@ -5,10 +5,10 @@ export CYAN='\033[0;36m'
 export NC='\033[0m'
 rm -f /root/sc > /dev/null 2>&1
 duration=6
-frames=("█████10%" "████████35%" "████████████65%" "███████████████████80%" "████████████████████████90%" "█████████████████████████100%")
+geo=("████████10%" "███████████35%" "███████████████65%" "██████████████████████80%" "███████████████████████████90%" "████████████████████████████100%")
 sleep 0.05
 #>>>GEO PROJECT
-num_frames=${#frames[@]}
+num_geo=${#geo[@]}
 
 #>>>GEO PROJECT
 num_iterations=$((duration))
@@ -32,12 +32,12 @@ echo ""
 Loading() {
     for ((i = 0; i < num_iterations; i++)); do
         clear
-        index=$((i % num_frames))
+        index=$((i % num_geo))
         color_code=$((31 + i % 7))
 echo ""
 echo ""
 echo ""
-echo -e "\e[1;${color_code}m ${frames[$index]}\e[0m"
+echo -e "\e[1;${color_code}m ${geo[$index]}\e[0m"
 sleep 1
     done
 }
