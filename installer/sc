@@ -14,6 +14,21 @@ num_frames=${#frames[@]}
 num_iterations=$((duration))
 
 # Fungsi untuk menampilkan animasi loading berwarna
+function SAMAWA(){
+clear
+echo -e " ${BLUE}┌─────────────────────────────────────────────────────┐${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}         ____ _____ _____     ______  _   _${NC}${BLUE}          │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}        / ___| ____/ _ \ \   / /  _ \| \ | |${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}       | |  _|  _|| | | \ \ / /| |_) |  \| |${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}       | |_| | |__| |_| |\ V / |  __/| |\  |${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}${GREEN}        \____|_____\___/  \_/  |_|   |_| \_|${NC}${BLUE}         │${NC}"
+echo -e " ${BLUE}│${NC}                                                    ${BLUE} │${NC}"
+echo -e " ${BLUE}│${NC}             MULTIPORT VPN SCRIPT V3.1              ${BLUE} │${NC}"
+echo -e " ${BLUE}│${NC}                   WWW.GEOVPN.COM                   ${BLUE} │${NC}"
+echo -e " ${BLUE}│${NC}    TELEGRAM CH ${GREEN}@testikuy_mang${NC} ADMIN ${GREEN}@tau_samawa${NC}    ${BLUE} │${NC}"
+echo -e " ${BLUE}└─────────────────────────────────────────────────────┘${NC}"
+}
+echo ""
 
 Loading_Animasi() {
     for ((i = 0; i < num_iterations; i++)); do
@@ -37,18 +52,3 @@ sysctl -w net.ipv6.conf.all.disable_ipv6=1 && sysctl -w net.ipv6.conf.default.di
 rm -f /root/sc > /dev/null 2>&1
 }
 Installer
-function SAMAWA(){
-clear
-echo -e " ${BLUE}┌─────────────────────────────────────────────────────┐${NC}"
-echo -e " ${BLUE}│${NC}${GREEN}         ____ _____ _____     ______  _   _${NC}${BLUE}          │${NC}"
-echo -e " ${BLUE}│${NC}${GREEN}        / ___| ____/ _ \ \   / /  _ \| \ | |${NC}${BLUE}         │${NC}"
-echo -e " ${BLUE}│${NC}${GREEN}       | |  _|  _|| | | \ \ / /| |_) |  \| |${NC}${BLUE}         │${NC}"
-echo -e " ${BLUE}│${NC}${GREEN}       | |_| | |__| |_| |\ V / |  __/| |\  |${NC}${BLUE}         │${NC}"
-echo -e " ${BLUE}│${NC}${GREEN}        \____|_____\___/  \_/  |_|   |_| \_|${NC}${BLUE}         │${NC}"
-echo -e " ${BLUE}│${NC}                                                    ${BLUE} │${NC}"
-echo -e " ${BLUE}│${NC}             MULTIPORT VPN SCRIPT V3.1              ${BLUE} │${NC}"
-echo -e " ${BLUE}│${NC}                   WWW.GEOVPN.COM                   ${BLUE} │${NC}"
-echo -e " ${BLUE}│${NC}    TELEGRAM CH ${GREEN}@testikuy_mang${NC} ADMIN ${GREEN}@tau_samawa${NC}    ${BLUE} │${NC}"
-echo -e " ${BLUE}└─────────────────────────────────────────────────────┘${NC}"
-}
-echo ""
