@@ -39,7 +39,7 @@ echo ""
 echo ""
 echo ""
 echo -e "\e[1;${color_code}m ${frames[$index]}\e[0m"
-sleep 1.5
+sleep 1
     done
 }
 Loading_Animasi
