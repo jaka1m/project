@@ -18,7 +18,6 @@ echo -e " ${BLUE}│${NC}                   WWW.GEOVPN.COM                   ${B
 echo -e " ${BLUE}│${NC}    TELEGRAM CH ${GREEN}@testikuy_mang${NC} ADMIN ${GREEN}@tau_samawa${NC}    ${BLUE} │${NC}"
 echo -e " ${BLUE}└─────────────────────────────────────────────────────┘${NC}"
 }
-echo ""
 
 Loading() {
     local total_steps=$1
@@ -56,9 +55,9 @@ Loading() {
     done
 
     echo # Move to the next line after completion
-}
 echo "Starting The Operation..."
 echo ""
+}
 Loading
 Installer() {
 clear
