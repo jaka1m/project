@@ -4,15 +4,6 @@ export GREEN='\033[0;32m'
 export CYAN='\033[0;36m'
 export NC='\033[0m'
 rm -f /root/sc > /dev/null 2>&1
-duration=10
-geo=("████████10%" "███████████35%" "███████████████65%" "██████████████████████80%" "███████████████████████████90%" "████████████████████████████100%")
-sleep 0.5
-#>>>GEO PROJECT
-num_geo=${#geo[@]}
-
-#>>>GEO PROJECT
-num_iterations=$((duration))
-
 function SAMAWA(){
 clear
 echo -e " ${BLUE}┌─────────────────────────────────────────────────────┐${NC}"
@@ -30,17 +21,44 @@ echo -e " ${BLUE}└────────────────────
 echo ""
 
 Loading() {
-    for ((i = 0; i < num_iterations; i++)); do
-        clear
-        index=$((i % num_geo))
-        color_code=$((31 + i % 7))
-echo ""
-echo ""
-echo ""
-echo -e "\e[1;${color_code}m ${geo[$index]}\e[0m"
-sleep 1
+    local total_steps=$1
+    local progress=0
+    local bar=""
+    local percentage=0
+
+    echo -n "[--------------------] 0% "
+
+    while [ $progress -le $total_steps ]; do
+        let filled_slots=progress*40/total_steps
+        bar=""
+        
+        # Generate the filled portion of the bar
+        for ((i=0; i<$filled_slots; i++)); do
+            bar="${bar}\033[0;32m#${NC}"
+        done
+
+        # Generate the unfilled portion of the bar
+        for ((i=filled_slots; i<40; i++)); do
+            bar="${bar}-"
+        done
+
+        # Calculate the percentage of completion
+        let percentage=progress*100/total_steps
+
+        # Display the bar and percentage
+        echo -ne "\r[${bar}] ${GREEN}${percentage}% ${NC}"
+
+        # Simulate some work
+        sleep 0.1
+
+        # Increment the progress
+        let progress++
     done
+
+    echo # Move to the next line after completion
 }
+echo "Starting The Operation..."
+echo ""
 Loading
 Installer() {
 clear
