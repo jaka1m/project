@@ -18,8 +18,7 @@ echo -e " ${BLUE}│${NC}                   WWW.GEOVPN.COM                   ${B
 echo -e " ${BLUE}│${NC}    TELEGRAM CH ${GREEN}@testikuy_mang${NC} ADMIN ${GREEN}@tau_samawa${NC}    ${BLUE} │${NC}"
 echo -e " ${BLUE}└─────────────────────────────────────────────────────┘${NC}"
 }
-
-Loading() {
+display_progress_bar() {
     local total_steps=$1
     local progress=0
     local bar=""
@@ -55,10 +54,13 @@ Loading() {
     done
 
     echo # Move to the next line after completion
+}
+clear
+# Main execution
 echo "Starting The Operation..."
 echo ""
-}
-Loading
+display_progress_bar 100
+echo ""
 Installer() {
 clear
 SAMAWA
