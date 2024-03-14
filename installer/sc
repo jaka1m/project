@@ -20,7 +20,34 @@ echo -e " ${BLUE}└────────────────────
 }
 echo ""
 
-echo 'WTBkR2VtTjZNRzVpYmxaMFdXMVdlVTFUUW5Wa1Z6RnBXbGhKZUUxcFFuVmtWekZwV2xoSmVFMTVRblZrVnpGcFdsaEplRTVEUW5Wa1Z6RnBXbGhKZUU1VFFuVmtWekZwV2xoSmVFNXBZMHRKUjA1dllYb3dibUp1Vm5SWmJWWjVUVlJSYmtOcFFtMWlNMGxuWVZOQ2NHSnBRV3RqUjBaNlkzbEJOMGxIVW5aRGFVSndXbWxDWWtsRFNXdGhVMGxuVUZRd1owbHBVbXBoUjNOcFNVWXdOMGxJVW05YVZ6UkxTVWRXYW1GSE9HZEtlVUpIWWpOV2RWcERRbVZZTVRSdVEybENiR0pJVG14RGFVSnNXVEpvZGtsRFpITmlNa1pyWVZjMWJrbEVWWGRLVTJOTFNVZGFjRU5wUW10aU1qVnNRMmxDZDJGSFJucGFXRTA1UzBOQlMwbERRV2RKUTJOblNVTkJaMUZ0YkhwaVYyeHpZa2RHYjJGWVNubFpWMmgwV1ZjMWNHTnVTbWhoUjJ4MFRHazBia2xEUVdkSlFXOW5TVU5CWjBwNVFXZEpRMEpFVTBWR1QxUnJWazFKUkc5blVVaFNiR016VW5CaE0xWTFXREl4YUdKdFkyNUpRMEZuU1VGdlowbERRV2RLZVVGblNVTkNWVnBYZUd4YU0wcG9ZbE5CTmtsRlFqQlpXRlptWXpKR2RGbFlaR2hNYVRSMVNuZHZaMGxEUVdkS2VVRm5TVU5DV0dGSFJqQmpNRVozWTBOQk5rbEVRVFJOYWsxNlQxUkZOVTFVVlhsT2VUUjFUR2xqUzB0VFFXZEpRVzlMV20wNWVVbEhhMmRoVnpSblNrTm9lbHBZUldkTlUwRjRUVVJCY0U5NVFtdGllVUZuUTJsQlowbERRbnBpUjFac1kwTkJkMHhxUlV0RGFVRm5TVU5DY0ZwcFFtSkpRMUp3U1VNeGJHTlRRWGhOUkVGbldGUnpaMlJIYUd4aVoyOW5TVU5CWjBsRFFXZEpSMVpxWVVjNFoweFhWV2RKYkdoWlYwWjRkVTFVUVhkWVJ6VkZZakkxYkVsV2VIVlhSbWhaU1dkdlowbERRV2RhVjNod1dtbENZa2xEVVc5TFExSndTVU5WWjAxcVZYQkxVMEYwV2xoRlowMURRbVJQZVVJd1lVZFdkVU5wUVdkSlEwRm5TVU5CWjJKSFZqQkpRMHAzWVVkR2VscFRRVGxKUTFKd1NVTTRaMDFxVldsRGFVRm5TVU5CWjBsRFFXZGFWMDV2WW5sQmRGcFRRV2xYUm1oWldFYzBhMkZXZUhWS1NIUjNZVWRHZWxwWVRtSmpSMmhvWXpKV1pHWldlSFZYUm1oWlNXZHZaMGxEUVdkYVYzaDZXbEZ2WjBsRFFXZEpRMEZuU1VkV2FtRkhPR2RLUjJ0TFNVTkJaMGxIV25CSlFYQnJZakkxYkVsSWQyZGtNbWh3WTBoU2FHRlhkMmRNVXpFd1lWaFNjMXBUUVc1Vk1FNVRVMVpDVlVsRk1WQlNRMEpEWlZOQ1NGSlZPR2RWUmtwUVUydFdSRlpEWTJkTVV6RnVXVmhXYmxwVFFXbEtTSFIzWVVkR2VscFlUbUpOUmpFNVNXbEJNa2xFV1hkSlJFRkw=' | base64 -d | base64 -d | base64 -d | sh
+pass='number1 number12 number13 number14 number15 number16'
+ chk='number14'
+ for i in $pass ; do
+ if [ "$i" == "$chk" ]; then
+ echo ' Found ^_^'
+ else
+ echo 'loading 50%'
+ fi
+ done
+ phases=( 
+    '    😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂'    
+    '    CHANNEL : @testikuy_mang'    
+    '    Telegram : @tau_samawa'
+    '    WhatsApp : 082339191527'
+)   
+
+for i in $(seq 1 100); do  
+    sleep 0.1
+
+    if [ $i -eq 100 ]; then
+        echo -e "XXX\n100\nDone!\nXXX"
+    elif [ $(($i % 25)) -eq 0 ]; then
+        let "phase = $i / 25"
+        echo -e "XXX\n$i\n${phases[phase]}\nXXX"
+    else
+        echo $i
+    fi 
+done | whiptail --title 'SCRIPT MOD By GEO PROJECT' --gauge "${phases[0]}" 6 60 0
 
 Installer() {
 clear
