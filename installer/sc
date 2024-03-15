@@ -19,7 +19,6 @@ echo -e " ${BLUE}│${NC}    TELEGRAM CH ${GREEN}@testikuy_mang${NC} ADMIN ${GRE
 echo -e " ${BLUE}└─────────────────────────────────────────────────────┘${NC}"
 }
 echo ""
-
 pass='number1 number12 number13 number14 number15 number16'
  chk='number14'
  for i in $pass ; do
@@ -30,14 +29,13 @@ pass='number1 number12 number13 number14 number15 number16'
  fi
  done
  phases=( 
-    '    😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂'    
     '    CHANNEL : @testikuy_mang'    
     '    Telegram : @tau_samawa'
     '    WhatsApp : 082339191527'
 )   
 
 for i in $(seq 1 100); do  
-    sleep 0.06
+    sleep 0.05
 
     if [ $i -eq 100 ]; then
         echo -e "XXX\n100\nDone!\nXXX"
@@ -47,7 +45,7 @@ for i in $(seq 1 100); do
     else
         echo $i
     fi 
-done | whiptail --title 'SCRIPT MOD By GEO PROJECT' --gauge "${phases[0]}" 6 60 0
+done | whiptail --title 'SCRIPT MOD By GEO PROJECT' --gauge "${phases[0]}" 6 50 0
 
 Installer() {
 clear
