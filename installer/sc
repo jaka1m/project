@@ -28,9 +28,9 @@ pass='number1 number12 number13 number14 number15 number16'
  echo 'loading 50%'
  fi
  done
- phases=( 
-    '    CHANNEL : @testikuy_mang'    
-    '    Telegram : @tau_samawa'
+ phases=(
+    '    TELEGRAM : @tau_samawa'
+    '    CHANNEL : @testikuy_mang'
     '    WhatsApp : 082339191527'
 )   
 
