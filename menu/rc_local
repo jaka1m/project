@@ -6,8 +6,8 @@
 # (C) Copyright 2024
 # =========================================
 clear
-rm /etc/systemd/system/rc-local.service
-rm /etc/rc.local
+rm /etc/systemd/system/rc-local.service > /dev/null 2>&1
+rm /etc/rc.local > /dev/null 2>&1
 cat >/etc/systemd/system/rc-local.service <<-END
 		[Unit]
 		Description=/etc/rc.local
