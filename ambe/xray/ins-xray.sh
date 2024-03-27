@@ -112,7 +112,7 @@ date
 echo ""
 MYIP=$(wget -qO- ipinfo.io/ip);
 clear
-domain=$(cat /etc/xray/domain)
+domain=$(cat /root/domain)
 echo -e "[ ${GREEN}INFO${NC} ] Checking... "
 echo ""
 echo -e "[ ${GREEN}INFO${NC} ] install iptables iptables-persistent... "
