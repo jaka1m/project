@@ -114,7 +114,7 @@ MYIP=$(wget -qO- ipinfo.io/ip);
 clear
 apt install jq curl -y
 DOMAIN=lekong.my.id
-sub=$(</dev/urandom tr -dc a-x1-9 | head -c3 | tr -d '\r' | tr -d '\r\n')
+sub=$(</dev/urandom tr -dc a-x1-9 | head -c6 | tr -d '\r' | tr -d '\r\n')
 SUB_DOMAIN=${sub}.lekong.my.id
 CF_ID=ambebalong@gmail.com
 CF_KEY=5fae9fcb9c193ce65de4b57689a94938b708e
@@ -173,5 +173,5 @@ RESULT=$(curl -sLX PUT "https://api.cloudflare.com/client/v4/zones/${ZONE}/dns_r
      -H "Content-Type: application/json" \
      --data '{"type":"A","name":"'${WILD_DOMAIN}'","content":"'${IP}'","ttl":120,"proxied":false}')
 echo "Host : $SUB_DOMAIN"
-echo $SUB_DOMAIN > /root/domain
+echo $SUB_DOMAIN > /etc/xray/domain
 rm -f /root/cf.sh
